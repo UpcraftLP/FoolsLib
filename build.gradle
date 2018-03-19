@@ -1,0 +1,367 @@
+import java.time.Year
+
+buildscript {
+    repositories {
+        jcenter()
+
+        maven {
+            name = "forge"
+            url = "http://files.minecraftforge.net/maven"
+        }
+
+        maven {
+            name = "Sonatype"
+            url = 'https://oss.sonatype.org/content/groups/public'
+        }
+    }
+    dependencies {
+        classpath 'net.minecraftforge.gradle:ForgeGradle:2.0-SNAPSHOT'
+        classpath 'com.matthewprenger:CurseGradle:1.0-SNAPSHOT'
+    }
+}
+
+apply plugin: 'net.minecraftforge.gradle.forge'
+apply plugin: 'com.matthewprenger.cursegradle'
+apply plugin: 'maven'
+
+def username = "${mod_name}"
+if (project.hasProperty('dev_mail')) {
+    username = "${dev_mail}"
+}
+else if(project.hasProperty('dev_username')) {
+    username = "${project.dev_username}"
+}
+
+version = "${project.mc_version}-${project.mod_version}"
+group = project.maven_group // http://maven.apache.org/guides/mini/guide-naming-conventions.html
+archivesBaseName = project.mod_name
+
+sourceCompatibility = targetCompatibility = project.jvm_version // Need this here so eclipse task generates correctly.
+compileJava {
+    sourceCompatibility = targetCompatibility = project.jvm_version
+}
+
+repositories {
+    maven {
+        //NEI
+        name = "ChickenBones"
+        url = "http://chickenbones.net/maven/"
+    }
+    
+    maven {
+        //get dependencies from github
+        name = "JitPack"
+        url = "https://jitpack.io"
+    }
+}
+
+minecraft {
+    version = "${project.mc_version}-${project.forge_version}"
+    if(project.hasProperty('runDir')) {
+        runDir = project.runDir
+    }
+    else if(file('../run').exists()) {
+		runDir = "../run"
+	}
+	else
+	{
+		runDir = "run"
+	}
+
+    mappings = project.forge_mappings
+    makeObfSourceJar = true
+	
+    replace "@VERSION@", project.mod_version
+    def fingerPrintKey = project.hasProperty('public_key') ? findProperty('public_key').replace(":", "").toLowerCase(Locale.ROOT) : "undefined"
+    replace "@FINGERPRINTKEY@", fingerPrintKey
+    replaceIn project.reference_class
+
+    clientRunArgs += "--username=${username}"
+    if(project.hasProperty('dev_password')) {
+        clientRunArgs += "--password=${dev_password}"
+    }
+
+    if(project.hasProperty('loading_plugin_client')) clientJvmArgs += "-Dfml.coreMods.load=${loading_plugin_client}"
+    if(project.hasProperty('loading_plugin_server')) serverJvmArgs += "-Dfml.coreMods.load=${loading_plugin_server}"
+    
+    // skip the screen to confirm that you want to load a world with missing registry entries
+    serverJvmArgs += "-Dfml.doNotBackup=true"
+    clientJvmArgs += "-Dfml.doNotBackup=true"
+    
+    // skip having to confirm on server
+    serverJvmArgs += "-Dfml.queryResult=confirm"
+    
+    // disable server gui
+    serverRunArgs += "nogui"
+    
+    //skip jansi warnings in the log
+    serverJvmArgs += '-Dlog4j.skipJansi=true'
+    clientJvmArgs += '-Dlog4j.skipJansi=true'
+}
+
+dependencies {
+    // for more info...
+    // http://www.gradle.org/docs/current/userguide/artifact_dependencies_tutorial.html
+    // http://www.gradle.org/docs/current/userguide/dependency_management.html
+
+    runtime "codechicken:NotEnoughItems:${project.mc_version}-${project.nei_version}:dev" //:dev?
+    runtime "codechicken:CodeChickenCore:${project.mc_version}-${project.chickencore_version}:dev" //:dev?
+    runtime "codechicken:CodeChickenLib:${project.mc_version}-${project.ccl_version}:dev" //:dev?
+}
+
+compileJava {
+    options.encoding = 'UTF-8'
+}
+
+if (JavaVersion.current().isJava8Compatible()) {
+    allprojects {
+        tasks.withType(Javadoc) {
+            options.addStringOption('Xdoclint:none', '-quiet')
+        }
+    }
+}
+
+// API jar
+task apiJar(type: Jar) {
+    from sourceSets.main.output
+    from sourceSets.main.allJava
+    include project.api_package
+    manifest.mainAttributes(
+            "Built-On-Java": "${System.getProperty('java.vm.version')} + (${System.getProperty('java.vm.vendor')})",
+            "Implementation-Title": project.name + '-api',
+            "Implementation-Version": project.version,
+            "Maven-Artifact":"${project.group}:${project.archivesBaseName}:${project.version}:api",
+            "Built-On": "${mc_version}-${forge_version}"
+    )
+    classifier = 'api'
+}
+
+// Javadoc jar
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    from javadoc.destinationDir
+    manifest.mainAttributes(
+            "Built-On-Java": "${System.getProperty('java.vm.version')} + (${System.getProperty('java.vm.vendor')})",
+            "Implementation-Title": project.name + '-javadoc',
+            "Implementation-Version": project.version,
+            "Maven-Artifact":"${project.group}:${project.archivesBaseName}:${project.version}:javadoc",
+            "Built-On": "${mc_version}-${forge_version}"
+    )
+    classifier = 'javadoc'
+}
+
+task deobfJar(type: Jar) {
+    from sourceSets.main.output
+    manifest.mainAttributes(
+            "Built-On-Java": "${System.getProperty('java.vm.version')} + (${System.getProperty('java.vm.vendor')})",
+            "Implementation-Title": project.name + '-deobf',
+            "Implementation-Version": project.version,
+            "Maven-Artifact":"${project.group}:${project.archivesBaseName}:${project.version}:deobf",
+            "Built-On": "${mc_version}-${forge_version}",
+            "FMLAT": "${project.mod_name}_at.cfg",
+            "MCP-Mappings": project.forge_mappings
+    )
+    classifier = 'deobf'
+}
+
+task signApiJar(type: SignJar, dependsOn: apiJar) {
+    onlyIf {
+        project.hasProperty('sign_keyStore')
+    }
+    keyPass = findProperty('sign_keyPass')
+    keyStore = findProperty('sign_keyStore')
+    storePass = findProperty('sign_storePass')
+    alias = findProperty('sign_alias')
+
+    inputFile = deobfJar.archivePath
+    outputFile = deobfJar.archivePath
+}
+
+task signDeobfJar(type: SignJar, dependsOn: deobfJar) {
+    onlyIf {
+        project.hasProperty('sign_keyStore')
+    }
+    keyPass = findProperty('sign_keyPass')
+    keyStore = findProperty('sign_keyStore')
+    storePass = findProperty('sign_storePass')
+    alias = findProperty('sign_alias')
+
+    inputFile = deobfJar.archivePath
+    outputFile = deobfJar.archivePath
+}
+
+task signJavadocJar(type: SignJar, dependsOn: javadocJar) {
+    onlyIf {
+        project.hasProperty('sign_keyStore')
+    }
+    keyPass = findProperty('sign_keyPass')
+    keyStore = findProperty('sign_keyStore')
+    storePass = findProperty('sign_storePass')
+    alias = findProperty('sign_alias')
+
+    inputFile = deobfJar.archivePath
+    outputFile = deobfJar.archivePath
+}
+
+task coreJar(type: Jar) {
+    from(sourceSets.main.output) {
+        include project.core_package
+    }
+    manifest.mainAttributes(
+            "Implementation-Title": project.name + "-corePlugin",
+            "Implementation-Version": "${project.mod_version}",
+            "Built-On": "${project.mc_version}-${project.forge_version}",
+            "FMLCorePlugin": "com.github.upcraftlp.craftdevcore.asm.CraftDevLoadingPlugin"
+    )
+    classifier 'core'
+    group = 'build'
+}
+
+reobf {
+    coreJar {
+        //mappingType = 'SEARGE' //TODO replacement needed?
+    }
+}
+
+task signCoreJar(type: SignJar, dependsOn: reobfCoreJar) {
+    onlyIf {
+        project.hasProperty('sign_keyStore')
+    }
+    keyPass = findProperty('sign_keyPass')
+    keyStore = findProperty('sign_keyStore')
+    storePass = findProperty('sign_storePass')
+    alias = findProperty('sign_alias')
+
+    inputFile = coreJar.archivePath
+    outputFile = coreJar.archivePath
+}
+
+jar {
+    dependsOn signCoreJar
+    exclude project.core_package
+    from(coreJar.archivePath.absolutePath) {
+        include '*'
+    }
+
+    manifest.mainAttributes(
+            "Implementation-Title": project.name,
+            "Implementation-Version": "${project.mod_version}",
+            "Built-On": "${project.mc_version}-${project.forge_version}",
+            "Maven-Artifact":"${project.group}:${project.archivesBaseName}:${project.version}",
+            "FMLAT": "${project.mod_name}_at.cfg",
+            "ContainedDeps": coreJar.archivePath.name
+    )
+    classifier '' //this is the main jar!
+}
+
+//sign Jar
+task signJar(type: SignJar, dependsOn: reobfJar) {
+    onlyIf {
+        project.hasProperty('sign_keyStore')
+    }
+    keyPass = findProperty('sign_keyPass')
+    keyStore = findProperty('sign_keyStore')
+    storePass = findProperty('sign_storePass')
+    alias = findProperty('sign_alias')
+
+    inputFile = jar.archivePath
+    outputFile = jar.archivePath
+}
+
+tasks.build.dependsOn signJar, signApiJar, signDeobfJar, signJavadocJar
+tasks.curseforge.dependsOn build
+
+artifacts {
+    archives apiJar
+    archives deobfJar
+    archives javadocJar
+    archives coreJar
+}
+
+def curseRelations = {
+    optionalLibrary 'notenoughitems'
+    //optionalLibrary '' //add curseforge-slug here
+}
+
+processResources
+{
+    // this will ensure that this task is redone when the versions change.
+    inputs.property "version", project.version
+    inputs.property "mcversion", project.minecraft.version
+
+    // replace stuff in mcmod.info, nothing else
+    from(sourceSets.main.resources.srcDirs) {
+        include 'mcmod.info'
+                
+        // replace version and mcversion
+        expand 'version':version, 'mcversion':project.minecraft.version,
+                'mod_name':project.mod_name, 'mod_description':project.mod_description,
+                'url':project.url, 'update_url':project.update_json, 'year': Year.now().getValue()
+
+    }
+        
+    // copy everything else, thats not the mcmod.info
+    from(sourceSets.main.resources.srcDirs) {
+        exclude 'mcmod.info'
+    }
+    
+    //ATs
+	rename '(.+_at.cfg)', 'META-INF/$1'
+}
+
+curseforge {
+    if (project.hasProperty('curse_key'))
+        apiKey = project.curse_key
+
+
+    if(project.hasProperty('curse_id')) {
+        project {
+            id = project.curse_id
+            changelogType = 'markdown'
+            changelog = getChangelogText()
+            releaseType = project.release_type
+
+            relations curseRelations
+
+            //no such jars for now
+            //addArtifact javadocJar
+            //addArtifact sourceJar
+            //addArtifact apiJar
+
+            //addGameVersion '1.8' //automatically determined by the CurseGradle plugin
+
+            mainArtifact(jar) {
+                displayName = "${project.mod_name} v${project.mod_version} MC${mc_version}"
+            }
+        }
+    }
+}
+
+String getChangelogText() {
+    def changelogFile = new File(project.projectDir, "changelog.md")
+    String str = ''
+    if(!changelogFile.exists()) {
+        changelogFile.createNewFile()
+        return str
+    }
+    String separator = '---'
+    int lineCount = 0
+    boolean done = false
+    changelogFile.eachLine {
+        if (done || it == null) {
+            return
+        }
+        if (lineCount < 3) {
+            lineCount++
+            if (it.startsWith(separator)) {
+                return
+            }
+        }
+        if (!it.startsWith(separator)) {
+            str += "$it" + (lineCount < 3 ? ':\n\n' : '\n')
+            return
+        }
+        done = true // once we go past the first version block, parse no more
+    }
+    str += "\n\n see full changelog [here](${project.changelog_url} \"Changelog\")"
+    return str
+}
