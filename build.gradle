@@ -294,12 +294,11 @@ task signJar(type: SignJar, dependsOn: reobfJar) {
     outputFile = jar.archivePath
 }
 
-tasks.build.dependsOn signJar, signApiJar, signDeobfJar, signJavadocJar, publishToMavenLocal
+tasks.build.dependsOn signJar, signApiJar, signDeobfJar, signJavadocJar, publish
 tasks.curseforge.dependsOn build
 tasks.build.doLast {println("Build is " + project.mod_name + buildName)}
 
 publishing {
-    tasks.publish.dependsOn 'build'
     publications {
         mavenJava(MavenPublication) {
             artifact jar
