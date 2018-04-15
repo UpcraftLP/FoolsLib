@@ -22,7 +22,7 @@ buildscript {
 
 apply plugin: 'net.minecraftforge.gradle.forge'
 apply plugin: 'com.matthewprenger.cursegradle'
-apply plugin: 'maven'
+apply plugin: 'maven-publish'
 
 def username = "${mod_name}"
 if (project.hasProperty('dev_mail')) {
@@ -47,6 +47,11 @@ repositories {
         name = "ChickenBones"
         url = "http://chickenbones.net/maven/"
     }
+
+    maven {
+        name = "CurseForge"
+        url = "https://minecraft.curseforge.com/api/maven/"
+    }
     
     maven {
         //get dependencies from github
@@ -69,11 +74,12 @@ minecraft {
 	}
 
     mappings = project.forge_mappings
-    makeObfSourceJar = true
+    makeObfSourceJar = false
 	
     replace "@VERSION@", project.mod_version
     def fingerPrintKey = project.hasProperty('public_key') ? findProperty('public_key').replace(":", "").toLowerCase(Locale.ROOT) : "undefined"
     replace "@FINGERPRINTKEY@", fingerPrintKey
+    replace "@UPDATEJSON@", project.hasProperty('update_json') ? findProperty('update_json') : ""
     replaceIn project.reference_class
 
     clientRunArgs += "--username=${username}"
@@ -99,14 +105,27 @@ minecraft {
     clientJvmArgs += '-Dlog4j.skipJansi=true'
 }
 
+def lib_folder = new File("libraries")
+task fetch(type: Copy) {
+    lib_folder.mkdirs();
+    def lb = new File(lib_folder, "luckyblock.zip")
+    if (!lb.exists()) {
+        new URL(project.lb_link).withInputStream{ i -> lb.withOutputStream{ it << i }}
+    }
+}
+
 dependencies {
     // for more info...
     // http://www.gradle.org/docs/current/userguide/artifact_dependencies_tutorial.html
     // http://www.gradle.org/docs/current/userguide/dependency_management.html
 
-    runtime "codechicken:NotEnoughItems:${project.mc_version}-${project.nei_version}:dev" //:dev?
-    runtime "codechicken:CodeChickenCore:${project.mc_version}-${project.chickencore_version}:dev" //:dev?
-    runtime "codechicken:CodeChickenLib:${project.mc_version}-${project.ccl_version}:dev" //:dev?
+    //luck blocks: automatically downloaded into /libraries
+    tasks.dependencies.dependsOn fetch
+    runtime files("${lib_folder}/luckyblock.zip")
+
+    runtime "codechicken:NotEnoughItems:${project.mc_version}-${project.nei_version}:dev"
+    runtime "codechicken:CodeChickenCore:${project.mc_version}-${project.chickencore_version}:dev"
+    runtime "codechicken:CodeChickenLib:${project.mc_version}-${project.ccl_version}:dev"
 }
 
 compileJava {
@@ -160,7 +179,7 @@ task deobfJar(type: Jar) {
             "FMLAT": "${project.mod_name}_at.cfg",
             "MCP-Mappings": project.forge_mappings
     )
-    classifier = 'deobf'
+    classifier = 'dev'
 }
 
 task signApiJar(type: SignJar, dependsOn: apiJar) {
@@ -203,8 +222,13 @@ task signJavadocJar(type: SignJar, dependsOn: javadocJar) {
 }
 
 task coreJar(type: Jar) {
+    onlyIf {
+        project.hasProperty('core_package')
+    }
     from(sourceSets.main.output) {
-        include project.core_package
+        if(project.hasProperty('core_package')) {
+            include findProperty('core_package')
+        }
     }
     manifest.mainAttributes(
             "Implementation-Title": project.name + "-corePlugin",
@@ -217,15 +241,14 @@ task coreJar(type: Jar) {
 }
 
 reobf {
-    coreJar {
-        //mappingType = 'SEARGE' //TODO replacement needed?
-    }
+    if(project.hasProperty('core_package')) coreJar { }
 }
 
-task signCoreJar(type: SignJar, dependsOn: reobfCoreJar) {
+task signCoreJar(type: SignJar) {
     onlyIf {
         project.hasProperty('sign_keyStore')
     }
+    if(project.hasProperty('core_package')) dependsOn reobfCoreJar
     keyPass = findProperty('sign_keyPass')
     keyStore = findProperty('sign_keyStore')
     storePass = findProperty('sign_storePass')
@@ -236,10 +259,13 @@ task signCoreJar(type: SignJar, dependsOn: reobfCoreJar) {
 }
 
 jar {
-    dependsOn signCoreJar
-    exclude project.core_package
-    from(coreJar.archivePath.absolutePath) {
-        include '*'
+    if(project.hasProperty('core_package')) {
+        dependsOn signCoreJar
+        exclude project.core_package
+        from(coreJar.archivePath.absolutePath) {
+            include '*'
+        }
+        manifest.mainAttributes("ContainedDeps": coreJar.archivePath.name)
     }
 
     manifest.mainAttributes(
@@ -247,8 +273,7 @@ jar {
             "Implementation-Version": "${project.mod_version}",
             "Built-On": "${project.mc_version}-${project.forge_version}",
             "Maven-Artifact":"${project.group}:${project.archivesBaseName}:${project.version}",
-            "FMLAT": "${project.mod_name}_at.cfg",
-            "ContainedDeps": coreJar.archivePath.name
+            "FMLAT": "${project.mod_name}_at.cfg"
     )
     classifier '' //this is the main jar!
 }
@@ -267,14 +292,30 @@ task signJar(type: SignJar, dependsOn: reobfJar) {
     outputFile = jar.archivePath
 }
 
-tasks.build.dependsOn signJar, signApiJar, signDeobfJar, signJavadocJar
+tasks.build.dependsOn signJar, signApiJar, signDeobfJar, signJavadocJar, publishToMavenLocal
 tasks.curseforge.dependsOn build
+
+publishing {
+    tasks.publish.dependsOn 'build'
+    publications {
+        mavenJava(MavenPublication) {
+            artifact jar
+            artifact apiJar
+            artifact deobfJar
+            artifact javadocJar
+        }
+    }
+
+    repositories {
+        mavenLocal()
+    }
+}
 
 artifacts {
     archives apiJar
     archives deobfJar
     archives javadocJar
-    archives coreJar
+    //archives coreJar
 }
 
 def curseRelations = {
@@ -293,10 +334,9 @@ processResources
         include 'mcmod.info'
                 
         // replace version and mcversion
-        expand 'version':version, 'mcversion':project.minecraft.version,
+        expand 'version':project.version, 'mcversion':project.minecraft.version,
                 'mod_name':project.mod_name, 'mod_description':project.mod_description,
                 'url':project.url, 'update_url':project.update_json, 'year': Year.now().getValue()
-
     }
         
     // copy everything else, thats not the mcmod.info
@@ -323,9 +363,10 @@ curseforge {
             relations curseRelations
 
             //no such jars for now
-            //addArtifact javadocJar
-            //addArtifact sourceJar
-            //addArtifact apiJar
+            addArtifact javadocJar
+            addArtifact sourceJar
+            addArtifact apiJar
+            if(project.hasProperty('core_package')) addArtifact coreJar
 
             //addGameVersion '1.8' //automatically determined by the CurseGradle plugin
 
@@ -340,6 +381,7 @@ String getChangelogText() {
     def changelogFile = new File(project.projectDir, "changelog.md")
     String str = ''
     if(!changelogFile.exists()) {
+        System.out.println("No changelog file found, creating one at \"" + changelogFile.getAbsolutePath() + "\"")
         changelogFile.createNewFile()
         return str
     }
