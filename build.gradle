@@ -34,7 +34,7 @@ else if(project.hasProperty('dev_username')) {
 
 def buildName = ("${project.release_type}".equals("release") ? "" : "-" + "${project.release_type}" + project.getGitHash() + "-SNAPSHOT")
 
-version = "${project.mc_version}-${project.mod_version}"
+version = "${project.mc_version}-${project.mod_version}" + buildName
 group = project.maven_group // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = project.mod_name
 
@@ -78,7 +78,7 @@ minecraft {
     mappings = project.forge_mappings
     makeObfSourceJar = false
 	
-    replace "@VERSION@", project.mod_version
+    replace "@VERSION@", project.mod_version + buildName
     def fingerPrintKey = project.hasProperty('public_key') ? findProperty('public_key').replace(":", "").toLowerCase(Locale.ROOT) : "undefined"
     replace "@FINGERPRINTKEY@", fingerPrintKey
     replace "@UPDATEJSON@", project.hasProperty('update_json') ? findProperty('update_json') : ""
@@ -296,7 +296,7 @@ task signJar(type: SignJar, dependsOn: reobfJar) {
 
 tasks.build.dependsOn signJar, signApiJar, signDeobfJar, signJavadocJar, publish
 tasks.curseforge.dependsOn build
-tasks.build.doLast {println("Build is " + project.mod_name + buildName)}
+tasks.build.doLast {println("Build is " + version)}
 
 publishing {
     publications {
