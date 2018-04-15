@@ -32,6 +32,8 @@ else if(project.hasProperty('dev_username')) {
     username = "${project.dev_username}"
 }
 
+def buildName = ("${project.release_type}".equals("release") ? "" : "-" + "${project.release_type}" + project.getGitHash() + "-SNAPSHOT")
+
 version = "${project.mc_version}-${project.mod_version}"
 group = project.maven_group // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = project.mod_name
@@ -294,6 +296,7 @@ task signJar(type: SignJar, dependsOn: reobfJar) {
 
 tasks.build.dependsOn signJar, signApiJar, signDeobfJar, signJavadocJar, publishToMavenLocal
 tasks.curseforge.dependsOn build
+tasks.build.doLast {println("Build is " + project.mod_name + buildName)}
 
 publishing {
     tasks.publish.dependsOn 'build'
@@ -406,4 +409,10 @@ String getChangelogText() {
     }
     str += "\n\n see full changelog [here](${project.changelog_url} \"Changelog\")"
     return str
+}
+
+def getGitHash() {
+    def process = 'git rev-parse --short HEAD'.execute()
+    process.waitFor()
+    return '-' + (process.exitValue() ? 'unknown' : process.text.trim())
 }
