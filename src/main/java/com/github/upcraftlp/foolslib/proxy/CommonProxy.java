@@ -7,7 +7,7 @@ import com.github.upcraftlp.foolslib.api.util.ModHelper;
 import com.github.upcraftlp.foolslib.api.util.UpdateChecker;
 import com.github.upcraftlp.foolslib.config.FoolsConfig;
 import com.github.upcraftlp.foolslib.init.FoolsBlocks;
-import com.github.upcraftlp.foolslib.net.NetworkHandler;
+import com.github.upcraftlp.foolslib.api.net.NetworkHandler;
 import com.github.upcraftlp.foolslib.util.AutoRegistry;
 import com.github.upcraftlp.foolslib.world.gen.WorldGeneratorLuckyBlocks;
 import net.minecraftforge.fml.common.event.*;
