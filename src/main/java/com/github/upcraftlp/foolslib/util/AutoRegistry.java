@@ -27,10 +27,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Set;
+import java.util.*;
 
 public class AutoRegistry {
 
@@ -59,7 +56,7 @@ public class AutoRegistry {
                         if(annotation.terrainGen()) MinecraftForge.TERRAIN_GEN_BUS.register(instance);
                         if(annotation.oreGen()) MinecraftForge.ORE_GEN_BUS.register(instance);
                         if(annotation.fml()) FMLCommonHandler.instance().bus().register(instance);
-                        if(FoolsConfig.isDebugMode) FoolsLib.getLogger().debug("subscribed class {} for file {}; Forge: {}, FMLCommonHandler: {}" + asmData.getClassName(), asmData.getCandidate().getModContainer().getName(), annotation.forge(), annotation.fml());
+                        if(FoolsConfig.isDebugMode) FoolsLib.getLogger().info("subscribed class {} for mod {};\n\tForgeEventBus={}\n\tFMLCommonHandler={}\n\tTerrainGen={}\n\tOreGen={}\n\tSides:{}", asmData.getClassName(), asmData.getCandidate().getModContainer().getName(), annotation.forge(), annotation.fml(), annotation.terrainGen(), annotation.oreGen(), Arrays.toString(annotation.side()));
                     }
                 }
             } catch (Exception e) {

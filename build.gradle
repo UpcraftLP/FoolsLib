@@ -23,6 +23,7 @@ buildscript {
 apply plugin: 'net.minecraftforge.gradle.forge'
 apply plugin: 'com.matthewprenger.cursegradle'
 apply plugin: 'maven-publish'
+apply from: 'https://gist.githubusercontent.com/UpcraftLP/0a98a7dfe913bd3e99073efa7ad0353b/raw'
 
 def username = "${mod_name}"
 if (project.hasProperty('dev_mail')) {
@@ -32,15 +33,15 @@ else if(project.hasProperty('dev_username')) {
     username = "${project.dev_username}"
 }
 
-def buildName = ("${project.release_type}".equals("release") ? "" : "-" + "${project.release_type}" + project.getGitHash() + "-SNAPSHOT")
-
-version = "${project.mc_version}-${project.mod_version}" + buildName
+def buildVersion = project.mod_version + ext.buildName
+version = "${project.mc_version}-" + buildVersion
 group = project.maven_group // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = project.mod_name
+tasks.build.doFirst { println("Current version is ${modid}-${version}") }
 
-sourceCompatibility = targetCompatibility = project.jvm_version // Need this here so eclipse task generates correctly.
+sourceCompatibility = targetCompatibility = JavaVersion.VERSION_1_8 // Need this here so eclipse task generates correctly.
 compileJava {
-    sourceCompatibility = targetCompatibility = project.jvm_version
+    sourceCompatibility = targetCompatibility = JavaVersion.VERSION_1_8
 }
 
 repositories {
@@ -76,9 +77,9 @@ minecraft {
 	}
 
     mappings = project.forge_mappings
-    makeObfSourceJar = false
+    makeObfSourceJar = true
 	
-    replace "@VERSION@", project.mod_version + buildName
+    replace "@VERSION@", buildVersion
     def fingerPrintKey = project.hasProperty('public_key') ? findProperty('public_key').replace(":", "").toLowerCase(Locale.ROOT) : "undefined"
     replace "@FINGERPRINTKEY@", fingerPrintKey
     replace "@UPDATEJSON@", project.hasProperty('update_json') ? findProperty('update_json') : ""
@@ -89,9 +90,11 @@ minecraft {
         clientRunArgs += "--password=${dev_password}"
     }
 
-    if(project.hasProperty('loading_plugin_client')) clientJvmArgs += "-Dfml.coreMods.load=${loading_plugin_client}"
-    if(project.hasProperty('loading_plugin_server')) serverJvmArgs += "-Dfml.coreMods.load=${loading_plugin_server}"
-    
+    if(project.hasProperty('loading_plugin')) {
+        clientJvmArgs += "-Dfml.coreMods.load=${loading_plugin}"
+        serverJvmArgs += "-Dfml.coreMods.load=${loading_plugin}"
+    }
+
     // skip the screen to confirm that you want to load a world with missing registry entries
     serverJvmArgs += "-Dfml.doNotBackup=true"
     clientJvmArgs += "-Dfml.doNotBackup=true"
@@ -109,7 +112,7 @@ minecraft {
 
 def lib_folder = new File("libraries")
 task fetch(type: Copy) {
-    lib_folder.mkdirs();
+    lib_folder.mkdirs()
     def lb = new File(lib_folder, "luckyblock.zip")
     if (!lb.exists()) {
         new URL(project.lb_link).withInputStream{ i -> lb.withOutputStream{ it << i }}
@@ -233,10 +236,10 @@ task coreJar(type: Jar) {
         }
     }
     manifest.mainAttributes(
-            "Implementation-Title": project.name + "-corePlugin",
+            "Implementation-Title": project.name + "-core",
             "Implementation-Version": "${project.mod_version}",
             "Built-On": "${project.mc_version}-${project.forge_version}",
-            "FMLCorePlugin": "com.github.upcraftlp.craftdevcore.asm.CraftDevLoadingPlugin"
+            "FMLCorePlugin": "" + findProperty('loading_plugin')
     )
     classifier 'core'
     group = 'build'
@@ -296,7 +299,6 @@ task signJar(type: SignJar, dependsOn: reobfJar) {
 
 tasks.build.dependsOn signJar, signApiJar, signDeobfJar, signJavadocJar, publish
 tasks.curseforge.dependsOn build
-tasks.build.doLast {println("Build is " + version)}
 
 publishing {
     publications {
@@ -305,6 +307,7 @@ publishing {
             artifact apiJar
             artifact deobfJar
             artifact javadocJar
+            artifact sourceJar
         }
     }
 
@@ -328,7 +331,7 @@ def curseRelations = {
 processResources
 {
     // this will ensure that this task is redone when the versions change.
-    inputs.property "version", project.version
+    inputs.property "version", project.mod_version
     inputs.property "mcversion", project.minecraft.version
 
     // replace stuff in mcmod.info, nothing else
@@ -336,7 +339,7 @@ processResources
         include 'mcmod.info'
                 
         // replace version and mcversion
-        expand 'version':project.version, 'mcversion':project.minecraft.version,
+        expand 'version':project.mod_version, 'mcversion':project.minecraft.version,
                 'mod_name':project.mod_name, 'mod_description':project.mod_description,
                 'url':project.url, 'update_url':project.update_json, 'year': Year.now().getValue()
     }
@@ -373,7 +376,7 @@ curseforge {
             //addGameVersion '1.8' //automatically determined by the CurseGradle plugin
 
             mainArtifact(jar) {
-                displayName = "${project.mod_name} v${project.mod_version}${buildName} MC${mc_version}"
+                displayName = "${project.mod_name} MC${mc_version} v${buildVersion}"
             }
         }
     }
@@ -382,7 +385,7 @@ curseforge {
 String getChangelogText() {
     def changelogFile = new File(project.projectDir, "changelog.md")
     String str = ''
-    if(!changelogFile.exists()) {
+    if (!changelogFile.exists()) {
         System.out.println("No changelog file found, creating one at \"" + changelogFile.getAbsolutePath() + "\"")
         changelogFile.createNewFile()
         return str
@@ -397,7 +400,7 @@ String getChangelogText() {
         if (lineCount < 3) {
             lineCount++
             if (it.startsWith(separator)) {
-                return
+                return ""
             }
         }
         if (!it.startsWith(separator)) {
@@ -408,10 +411,4 @@ String getChangelogText() {
     }
     str += "\n\n see full changelog [here](${project.changelog_url} \"Changelog\")"
     return str
-}
-
-def getGitHash() {
-    def process = 'git rev-parse --short HEAD'.execute()
-    process.waitFor()
-    return '-' + (process.exitValue() ? 'unknown' : process.text.trim())
 }
