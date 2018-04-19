@@ -173,20 +173,6 @@ task javadocJar(type: Jar, dependsOn: javadoc) {
     classifier = 'javadoc'
 }
 
-task deobfJar(type: Jar) {
-    from sourceSets.main.output
-    manifest.mainAttributes(
-            "Built-On-Java": "${System.getProperty('java.vm.version')} + (${System.getProperty('java.vm.vendor')})",
-            "Implementation-Title": project.name + '-deobf',
-            "Implementation-Version": project.version,
-            "Maven-Artifact":"${project.group}:${project.archivesBaseName}:${project.version}:deobf",
-            "Built-On": "${mc_version}-${forge_version}",
-            "FMLAT": "${project.mod_name}_at.cfg",
-            "MCP-Mappings": project.forge_mappings
-    )
-    classifier = 'dev'
-}
-
 task signApiJar(type: SignJar, dependsOn: apiJar) {
     onlyIf {
         project.hasProperty('sign_keyStore')
@@ -196,21 +182,8 @@ task signApiJar(type: SignJar, dependsOn: apiJar) {
     storePass = findProperty('sign_storePass')
     alias = findProperty('sign_alias')
 
-    inputFile = deobfJar.archivePath
-    outputFile = deobfJar.archivePath
-}
-
-task signDeobfJar(type: SignJar, dependsOn: deobfJar) {
-    onlyIf {
-        project.hasProperty('sign_keyStore')
-    }
-    keyPass = findProperty('sign_keyPass')
-    keyStore = findProperty('sign_keyStore')
-    storePass = findProperty('sign_storePass')
-    alias = findProperty('sign_alias')
-
-    inputFile = deobfJar.archivePath
-    outputFile = deobfJar.archivePath
+    inputFile = apiJar.archivePath
+    outputFile = apiJar.archivePath
 }
 
 task signJavadocJar(type: SignJar, dependsOn: javadocJar) {
@@ -222,8 +195,8 @@ task signJavadocJar(type: SignJar, dependsOn: javadocJar) {
     storePass = findProperty('sign_storePass')
     alias = findProperty('sign_alias')
 
-    inputFile = deobfJar.archivePath
-    outputFile = deobfJar.archivePath
+    inputFile = javadocJar.archivePath
+    outputFile = javadocJar.archivePath
 }
 
 task coreJar(type: Jar) {
@@ -297,7 +270,7 @@ task signJar(type: SignJar, dependsOn: reobfJar) {
     outputFile = jar.archivePath
 }
 
-tasks.build.dependsOn signJar, signApiJar, signDeobfJar, signJavadocJar, publish
+tasks.build.dependsOn signJar, signApiJar, signJavadocJar, publish
 tasks.curseforge.dependsOn build
 
 publishing {
@@ -305,7 +278,6 @@ publishing {
         mavenJava(MavenPublication) {
             artifact jar
             artifact apiJar
-            artifact deobfJar
             artifact javadocJar
             artifact sourceJar
         }
@@ -318,13 +290,12 @@ publishing {
 
 artifacts {
     archives apiJar
-    archives deobfJar
     archives javadocJar
     //archives coreJar
 }
 
 def curseRelations = {
-    optionalLibrary 'notenoughitems'
+    //optionalLibrary 'notenoughitems'
     //optionalLibrary '' //add curseforge-slug here
 }
 
@@ -365,7 +336,7 @@ curseforge {
             changelog = getChangelogText()
             releaseType = project.release_type
 
-            relations curseRelations
+            //relations curseRelations //TODO re-enable when adding dependencies
 
             //no such jars for now
             addArtifact javadocJar
