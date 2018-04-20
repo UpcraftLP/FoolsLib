@@ -50,11 +50,6 @@ public  abstract class ItemInstantStructure<T extends InstantStructure> extends 
 
     @Override
     public boolean onItemUse(ItemStack stack, EntityPlayer playerIn, World worldIn, BlockPos pos, EnumFacing side, float hitX, float hitY, float hitZ) {
-        if(!worldIn.isRemote) {
-            if(this.maxDelay == 0) this.structure.placeBlocksInWorld(playerIn, worldIn, pos.offset(side), true);
-            else this.structure.placeBlocksInWorldDelay(playerIn, worldIn, pos.offset(side), this.placeDelay, this.maxDelay, true);
-            if(!playerIn.capabilities.isCreativeMode) stack.stackSize--;
-        }
         return true;
     }
 

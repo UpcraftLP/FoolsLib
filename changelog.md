@@ -2,3 +2,4 @@
 Version 1.0.0
 ------------------------------------------------------
 - no more deobf jar
+- fixed instant structure items
