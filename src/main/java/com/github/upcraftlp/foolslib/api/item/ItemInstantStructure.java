@@ -48,11 +48,6 @@ public  abstract class ItemInstantStructure<T extends InstantStructure> extends 
         return playerIn.capabilities.isCreativeMode ? itemStackIn : --itemStackIn.stackSize > 0 ? itemStackIn : null;
     }
 
-    @Override
-    public boolean onItemUse(ItemStack stack, EntityPlayer playerIn, World worldIn, BlockPos pos, EnumFacing side, float hitX, float hitY, float hitZ) {
-        return true;
-    }
-
     public List<BlockPos> getBlocks(EntityPlayer player, World world, BlockPos hitPos, boolean offset) {
         return this.structure.getPositions(player, world, hitPos, offset);
     }
