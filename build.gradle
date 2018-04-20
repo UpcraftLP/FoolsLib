@@ -269,11 +269,9 @@ task signJar(type: SignJar, dependsOn: reobfJar) {
     inputFile = jar.archivePath
     outputFile = jar.archivePath
 }
-
-//tasks.publishMavenJavaPublicationToMavenRepository.dependsOn signJar, signApiJar, signJavadocJar
-tasks.publishMavenJavaPublicationToMavenLocal.dependsOn signJar, signApiJar, signJavadocJar
-tasks.build.dependsOn signJar, signApiJar, signJavadocJar, publish
-tasks.curseforge.dependsOn build
+tasks.build.dependsOn signJar, signApiJar, signJavadocJar
+tasks.publish.dependsOn build
+tasks.curseforge.dependsOn publish
 
 publishing {
     publications {
@@ -282,7 +280,7 @@ publishing {
             artifact apiJar
             artifact javadocJar
             artifact sourceJar
-            evaluationDependsOn signJar, signApiJar, signJavadocJar
+
         }
     }
 
