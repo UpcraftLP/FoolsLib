@@ -256,6 +256,32 @@ jar {
     classifier '' //this is the main jar!
 }
 
+task deobfJar(type: Jar) {
+    from sourceSets.main.output
+    manifest.mainAttributes(
+            "Implementation-Title": project.name,
+            "Implementation-Version": "${project.mod_version}",
+            "Built-On": "${project.mc_version}-${project.forge_version}",
+            "Maven-Artifact":"${project.group}:${project.archivesBaseName}:${project.version}",
+            "FMLAT": "${project.mod_name}_at.cfg"
+    )
+    classifier 'dev'
+}
+
+//sign Jar
+task signDeobfJar(type: SignJar) {
+    onlyIf {
+        project.hasProperty('sign_keyStore')
+    }
+    keyPass = findProperty('sign_keyPass')
+    keyStore = findProperty('sign_keyStore')
+    storePass = findProperty('sign_storePass')
+    alias = findProperty('sign_alias')
+
+    inputFile = deobfJar.archivePath
+    outputFile = deobfJar.archivePath
+}
+
 //sign Jar
 task signJar(type: SignJar, dependsOn: reobfJar) {
     onlyIf {
@@ -269,7 +295,7 @@ task signJar(type: SignJar, dependsOn: reobfJar) {
     inputFile = jar.archivePath
     outputFile = jar.archivePath
 }
-tasks.build.dependsOn signJar, signApiJar, signJavadocJar
+tasks.build.dependsOn signJar, signApiJar, signJavadocJar, signDeobfJar
 tasks.publish.dependsOn build
 tasks.curseforge.dependsOn publish
 
@@ -280,7 +306,7 @@ publishing {
             artifact apiJar
             artifact javadocJar
             artifact sourceJar
-
+            artifact deobfJar
         }
     }
 
@@ -291,6 +317,7 @@ publishing {
 
 artifacts {
     archives apiJar
+    archives deobfJar
     archives javadocJar
     //archives coreJar
 }
@@ -339,10 +366,10 @@ curseforge {
 
             //relations curseRelations //TODO re-enable when adding dependencies
 
-            //no such jars for now
             addArtifact javadocJar
             addArtifact sourceJar
             addArtifact apiJar
+            addArtifact deobfJar
             if(project.hasProperty('core_package')) addArtifact coreJar
 
             //addGameVersion '1.8' //automatically determined by the CurseGradle plugin

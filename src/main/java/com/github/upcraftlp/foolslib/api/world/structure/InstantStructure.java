@@ -1,4 +1,4 @@
-package com.github.upcraftlp.foolslib.world.structure;
+package com.github.upcraftlp.foolslib.api.world.structure;
 
 import com.github.upcraftlp.foolslib.FoolsLib;
 import com.github.upcraftlp.foolslib.api.util.WorldScheduledTask;

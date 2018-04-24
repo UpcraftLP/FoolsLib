@@ -1,6 +1,6 @@
 package com.github.upcraftlp.foolslib.api.item;
 
-import com.github.upcraftlp.foolslib.world.structure.InstantStructure;
+import com.github.upcraftlp.foolslib.api.world.structure.InstantStructure;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
