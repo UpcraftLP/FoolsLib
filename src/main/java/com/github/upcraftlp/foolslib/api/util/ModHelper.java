@@ -2,10 +2,8 @@ package com.github.upcraftlp.foolslib.api.util;
 
 import com.github.upcraftlp.foolslib.FoolsLib;
 import net.minecraftforge.common.config.Configuration;
-import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
-import org.apache.commons.io.FileUtils;
 
 import javax.annotation.Nullable;
 import java.io.File;
@@ -46,4 +44,5 @@ public class ModHelper {
     public static Configuration getModConfig(@Nullable String name, String version) {
         return new Configuration(new File(configDir, name != null ? name : getActiveModid() + ".cfg"), version);
     }
+
 }

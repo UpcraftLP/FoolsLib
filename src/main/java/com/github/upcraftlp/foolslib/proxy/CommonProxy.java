@@ -5,6 +5,7 @@ import com.github.upcraftlp.foolslib.api.block.tile.TileEntityLuckyBlock;
 import com.github.upcraftlp.foolslib.api.luck.LuckyHelper;
 import com.github.upcraftlp.foolslib.api.util.ModHelper;
 import com.github.upcraftlp.foolslib.api.util.UpdateChecker;
+import com.github.upcraftlp.foolslib.command.CommandLoadSchematic;
 import com.github.upcraftlp.foolslib.config.FoolsConfig;
 import com.github.upcraftlp.foolslib.init.FoolsBlocks;
 import com.github.upcraftlp.foolslib.api.net.NetworkHandler;
@@ -32,7 +33,6 @@ public class CommonProxy {
 
     public void init(FMLInitializationEvent event) {
         GameRegistry.registerTileEntity(TileEntityLuckyBlock.class, FoolsLib.LUCKY_BLOCK.toString());
-
         LuckyHelper.registerDefaultDrops(FoolsLib.LUCKY_BLOCK);
         LuckyHelper.registerDefaultDrops(FoolsLib.LUCKY_BOW);
     }
@@ -43,6 +43,7 @@ public class CommonProxy {
 
     public void serverStarting(FMLServerStartingEvent event) {
         AutoRegistry.notifyServerUpdates();
+        event.registerServerCommand(new CommandLoadSchematic());
     }
 
     public void serverStopping(FMLServerStoppingEvent event) {

@@ -15,7 +15,8 @@ public class FoolsConfig {
     public static boolean
             announceBetaUpdates,
             enableUpdateChecker,
-            isDebugMode;
+            isDebugMode,
+            enableStructureCommands;
 
     public static void init() {
         config = ModHelper.getModConfig(FoolsLib.MODID, FoolsLib.VERSION);
@@ -29,6 +30,7 @@ public class FoolsConfig {
         enableUpdateChecker = config.getBoolean("Enable Update Checker", CATEGORY_GENERAL, true, "en/disable the update notifications");
         announceBetaUpdates = config.getBoolean("Announce Beta Updates", CATEGORY_GENERAL, false, "enable to be informed about beta updates for mods");
         isDebugMode = config.getBoolean("Debug Mode", CATEGORY_GENERAL, false, "show additional debug information");
+        enableStructureCommands = config.getBoolean("Enable Structure Commands", CATEGORY_GENERAL, false, "enable usage of the structure laod commands");
 
         if(config.hasChanged()) config.save();
     }
