@@ -13,7 +13,7 @@ public class ItemBase extends Item {
 
     public ItemBase(String name) {
         super();
-        this.setUnlocalizedName(ModHelper.getActiveModid() + "." + name);
+        this.setUnlocalizedName(ModHelper.getActiveModID() + "." + name);
     }
 
     public void setSubItemCount(int count) {

@@ -8,7 +8,7 @@ public class BlockBase extends Block implements IHasItemBlock {
 
     public BlockBase(String name, Material material) {
         super(material);
-        this.setUnlocalizedName(ModHelper.getActiveModid() + "." + name);
+        this.setUnlocalizedName(ModHelper.getActiveModID() + "." + name);
     }
 
     public BlockBase(String name) {

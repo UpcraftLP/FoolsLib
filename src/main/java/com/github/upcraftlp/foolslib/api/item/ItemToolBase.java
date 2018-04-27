@@ -10,7 +10,7 @@ public class ItemToolBase extends ItemTool {
     public ItemToolBase(String name, float attackDamageIn, ToolMaterial materialIn) {
         super(attackDamageIn, materialIn, Collections.emptySet());
         this.setFull3D();
-        this.setUnlocalizedName(ModHelper.getActiveModid() + "." + name);
+        this.setUnlocalizedName(ModHelper.getActiveModID() + "." + name);
     }
 
 }

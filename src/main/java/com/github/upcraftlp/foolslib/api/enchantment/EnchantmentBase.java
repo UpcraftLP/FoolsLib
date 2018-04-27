@@ -8,7 +8,7 @@ import net.minecraft.util.ResourceLocation;
 public class EnchantmentBase extends Enchantment {
 
     public EnchantmentBase(int enchID, String name, int enchWeight, EnumEnchantmentType enchType) {
-        this(enchID, new ResourceLocation(ModHelper.getActiveModid(), name), enchWeight, enchType);
+        this(enchID, new ResourceLocation(ModHelper.getActiveModID(), name), enchWeight, enchType);
     }
 
     public EnchantmentBase(int enchID, ResourceLocation name, int enchWeight, EnumEnchantmentType enchType) {

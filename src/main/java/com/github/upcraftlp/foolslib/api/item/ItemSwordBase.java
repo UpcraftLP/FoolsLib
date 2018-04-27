@@ -7,7 +7,7 @@ public class ItemSwordBase extends ItemSword {
 
     public ItemSwordBase(String name, ToolMaterial material) {
         super(material);
-        this.setUnlocalizedName(ModHelper.getActiveModid() + "." + name);
+        this.setUnlocalizedName(ModHelper.getActiveModID() + "." + name);
         this.setFull3D();
     }
 

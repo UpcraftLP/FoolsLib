@@ -3,30 +3,34 @@ package com.github.upcraftlp.foolslib.proxy;
 import com.github.upcraftlp.foolslib.FoolsLib;
 import com.github.upcraftlp.foolslib.api.block.tile.TileEntityLuckyBlock;
 import com.github.upcraftlp.foolslib.api.luck.LuckyHelper;
+import com.github.upcraftlp.foolslib.api.net.NetworkHandler;
 import com.github.upcraftlp.foolslib.api.util.ModHelper;
 import com.github.upcraftlp.foolslib.api.util.UpdateChecker;
-import com.github.upcraftlp.foolslib.command.CommandLoadSchematic;
+import com.github.upcraftlp.foolslib.command.CommandLoadStructure;
 import com.github.upcraftlp.foolslib.config.FoolsConfig;
 import com.github.upcraftlp.foolslib.init.FoolsBlocks;
-import com.github.upcraftlp.foolslib.api.net.NetworkHandler;
 import com.github.upcraftlp.foolslib.util.AutoRegistry;
 import com.github.upcraftlp.foolslib.world.gen.WorldGeneratorLuckyBlocks;
-import net.minecraftforge.fml.common.event.*;
+import net.minecraftforge.fml.common.event.FMLInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLInterModComms;
+import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
+import net.minecraftforge.fml.common.event.FMLServerStoppingEvent;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
 
 public class CommonProxy {
 
     public void preInit(FMLPreInitializationEvent event) {
-        FoolsConfig.init();
-        UpdateChecker.registerMod(FoolsLib.MODID);
         try {
-            ModHelper.setModid(FoolsLib.MODID);
             ReflectionHelper.findMethod(ModHelper.class, null, new String[]{"setup"}, FMLPreInitializationEvent.class).invoke(null, event);
             AutoRegistry.registerAll(event);
         } catch (Exception e) {
-            FoolsLib.getLogger().error("unable to initialize Fools API", e);
+            FoolsLib.getLogger().error("unable to initialize FoolsLib API", e);
         }
+        FoolsConfig.init();
+        UpdateChecker.registerMod(FoolsLib.MODID);
         NetworkHandler.init();
         GameRegistry.registerWorldGenerator(new WorldGeneratorLuckyBlocks(FoolsBlocks.LUCKY_BLOCK), 100000); //reminder: higher weight means the generator is run later
     }
@@ -43,7 +47,7 @@ public class CommonProxy {
 
     public void serverStarting(FMLServerStartingEvent event) {
         AutoRegistry.notifyServerUpdates();
-        event.registerServerCommand(new CommandLoadSchematic());
+        event.registerServerCommand(new CommandLoadStructure());
     }
 
     public void serverStopping(FMLServerStoppingEvent event) {

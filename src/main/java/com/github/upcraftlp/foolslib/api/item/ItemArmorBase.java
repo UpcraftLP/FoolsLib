@@ -9,7 +9,7 @@ public class ItemArmorBase extends ItemArmor {
 
     public ItemArmorBase(String name, ArmorMaterial materialIn,  int renderIndex, int armorType) {
         super(materialIn, renderIndex, armorType);
-        String prefixedName = ModHelper.getActiveModid() + "." + name + "_" + names[armorType];
+        String prefixedName = ModHelper.getActiveModID() + "." + name + "_" + names[armorType];
         this.setUnlocalizedName(prefixedName);
     }
 

@@ -1,7 +1,7 @@
 package com.github.upcraftlp.foolslib.command;
 
 import com.github.upcraftlp.foolslib.FoolsLib;
-import com.github.upcraftlp.foolslib.api.world.structure.StructureHelper;
+import com.github.upcraftlp.foolslib.api.world.structure.Structure;
 import com.github.upcraftlp.foolslib.config.FoolsConfig;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
@@ -10,15 +10,15 @@ import net.minecraft.command.WrongUsageException;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.ResourceLocation;
 
-public class CommandLoadSchematic extends CommandBase {
+public class CommandLoadStructure extends CommandBase {
     @Override
     public String getCommandName() {
-        return "loadSchematic";
+        return "loadStructure";
     }
 
     @Override
     public String getCommandUsage(ICommandSender sender) { //loadSchematic <name> [<x> <y> <z>] [true|false]
-        return "command." + FoolsLib.MODID + "." + getCommandName() + ".usage";
+        return "commands." + FoolsLib.MODID + "." + getCommandName() + ".usage";
     }
 
     @Override
@@ -29,7 +29,12 @@ public class CommandLoadSchematic extends CommandBase {
         ResourceLocation location = new ResourceLocation(args[0]);
         BlockPos pos = args.length >= 4 ? parseBlockPos(sender, args, 1, false) : sender.getPosition();
         boolean airReplaceBlocks = args.length != 5 || parseBoolean(args[4]);
-        StructureHelper.loadStructure(location, sender.getEntityWorld(), pos, airReplaceBlocks);
+        Structure structure = Structure.REGISTRY.get(location);
+        if(structure != null) {
+            structure.setIntegrity(1.0F);
+            structure.placeBlocksInWorld(sender.getEntityWorld(), pos, airReplaceBlocks);
+        }
+        else throw new CommandException("commands." + FoolsLib.MODID + "." + getCommandName() + ".structure_not_found");
     }
 
     @Override
@@ -39,6 +44,6 @@ public class CommandLoadSchematic extends CommandBase {
 
     @Override
     public boolean canCommandSenderUseCommand(ICommandSender sender) {
-        return super.canCommandSenderUseCommand(sender) && FoolsConfig.enableStructureCommands;
+        return FoolsConfig.enableStructureCommand && super.canCommandSenderUseCommand(sender);
     }
 }

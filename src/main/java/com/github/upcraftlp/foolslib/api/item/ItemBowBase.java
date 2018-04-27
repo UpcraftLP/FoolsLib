@@ -26,7 +26,7 @@ public class ItemBowBase extends ItemBow implements ICustomModelProvider {
     protected int maxPullTime = 18;
 
     public ItemBowBase(String name) {
-        String modid = ModHelper.getActiveModid();
+        String modid = ModHelper.getActiveModID();
         this.setUnlocalizedName(modid + "." + name);
         this.name = name;
     }

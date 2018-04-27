@@ -27,6 +27,7 @@ public class FoolsLib {
     public static final String MODID = "foolslib";
     public static final String MOD_NAME = "FoolsLib";
     public static final String VERSION = "@VERSION@";
+    public static final String ISSUE_TRACKER = "@ISSUETRACKER@";
 
     static final String UPDATE_JSON = "@UPDATEJSON@";
     static final String FINGERPRINT_KEY = "@FINGERPRINTKEY@";

@@ -26,7 +26,7 @@ public class BlockLuckyBase extends BlockBase {
     private final ResourceLocation blockName;
 
     public BlockLuckyBase(String name) {
-        this(new ResourceLocation(ModHelper.getActiveModid(), name));
+        this(new ResourceLocation(ModHelper.getActiveModID(), name));
     }
 
     public BlockLuckyBase(ResourceLocation name) {

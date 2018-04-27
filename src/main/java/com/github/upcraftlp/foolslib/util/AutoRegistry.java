@@ -67,7 +67,7 @@ public class AutoRegistry {
         data.forEach(asmData -> {
             try {
                 String modid = (String) asmData.getAnnotationInfo().get("modid");
-                ModHelper.setModid(modid);
+                ModHelper.setActiveModID(modid);
 
                 Class clazz = Class.forName(asmData.getClassName());
                 Class type = ((RegistryCreate) clazz.getDeclaredAnnotation(RegistryCreate.class)).value();
@@ -122,7 +122,7 @@ public class AutoRegistry {
                 FoolsLib.getLogger().error("exception registering stuff", e);
             }
         });
-        ModHelper.setModid(null);
+        ModHelper.setActiveModID(null);
     }
 
     public static void notifyServerUpdates() {

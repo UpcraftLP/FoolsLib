@@ -1,5 +1,6 @@
 package com.github.upcraftlp.foolslib.api.util;
 
+import java.text.SimpleDateFormat;
 import java.time.Year;
 import java.util.Calendar;
 import java.util.Date;
@@ -8,10 +9,13 @@ import java.util.Date;
 public class CalendarUtils {
 
     private static final boolean APRIL_1ST, EASTER, CHRISTMAS;
-    private static final long TWO_DAYS_BEFORE, TWO_DAYS_AFTER;
+    private static final long TWO_DAYS_BEFORE, TWO_DAYS_AFTER, LAUNCH_TIME;
+    private static final Date LAUNCH_TIME_DATE;
 
     static {
         Calendar calendar = Calendar.getInstance();
+        LAUNCH_TIME = calendar.getTimeInMillis();
+        LAUNCH_TIME_DATE = new Date(LAUNCH_TIME);
         calendar.add(Calendar.DAY_OF_MONTH, -2);
         TWO_DAYS_BEFORE = calendar.getTimeInMillis();
         calendar.add(Calendar.DAY_OF_MONTH, 4);
@@ -67,6 +71,17 @@ public class CalendarUtils {
 
     public static boolean isInRange(Date toCheck) {
         return isInRange(toCheck.getTime());
+    }
 
+    public static String getFormattedDateTime() {
+        return getFormattedDateTime("yyyyMMddHHmmss");
+    }
+
+    public static String getFormattedDateTime(String format) {
+        return new SimpleDateFormat(format).format(LAUNCH_TIME_DATE);
+    }
+
+    public static long getLaunchTimeStamp() {
+        return LAUNCH_TIME;
     }
 }

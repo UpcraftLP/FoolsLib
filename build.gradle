@@ -83,6 +83,7 @@ minecraft {
     def fingerPrintKey = project.hasProperty('public_key') ? findProperty('public_key').replace(":", "").toLowerCase(Locale.ROOT) : "undefined"
     replace "@FINGERPRINTKEY@", fingerPrintKey
     replace "@UPDATEJSON@", project.hasProperty('update_json') ? findProperty('update_json') : ""
+    replace "@ISSUETRACKER@", project.hasProperty('issue_tracker') ? findProperty('issue_tracker') : ""
     replaceIn project.reference_class
 
     clientRunArgs += "--username=${username}"

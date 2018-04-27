@@ -7,7 +7,7 @@ public class ItemFoodBase extends ItemFood {
 
     public ItemFoodBase(String name, int amount, float saturation, boolean isWolfFood) {
         super(amount, saturation, isWolfFood);
-        this.setUnlocalizedName(ModHelper.getActiveModid() + "." + name);
+        this.setUnlocalizedName(ModHelper.getActiveModID() + "." + name);
     }
 
 }
