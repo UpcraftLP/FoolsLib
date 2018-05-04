@@ -1,0 +1,16 @@
+#PARSE_ESCAPES
+
+#Misc
+desc.silverfish.name=Silverfish Block
+desc.foolslib.luck=Luck: %s
+message.foolslib.update=Update available for %s for Minecraft %s
+message.foolslib.update.download=Download v%s %s (your version is %s)
+message.foolslib.update.download.keyword=here
+
+#Config
+foolslib.config.title=FoolsLib Config
+foolslib.config.general=General
+
+#Events
+event.foolslib.not_found_title=Error 404
+event.foolslib.not_found_subtitle=Event not found!
