@@ -57,7 +57,9 @@ public abstract class Structure {
 
     protected abstract void unloadStructure();
 
-
+    /**
+     * @param airReplaceBlocks if structure air blocks should replace blocks already in the world
+     */
     public void placeBlocksInWorld(World world, BlockPos startPos, boolean airReplaceBlocks) {
         this.loadStructure();
         if(this.isLoaded) {
@@ -67,7 +69,7 @@ public abstract class Structure {
             }
             else this.doPlaceBlocks(world, startPos, airReplaceBlocks);
         }
-        else FoolsLib.getLogger().error("Unable to laod structure {}", this.structure);
+        else FoolsLib.getLogger().error("Unable to load structure {}", this.structure);
     }
 
     protected abstract void doPlaceBlocks(World world, BlockPos startPos, boolean airReplaceBlocks);
