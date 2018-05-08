@@ -5,3 +5,5 @@ Version 1.0.0
 - added placeable structures
 - structure placement fix
 - added lang file
+- added drop distribution
+
