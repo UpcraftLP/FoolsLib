@@ -1,4 +1,4 @@
-package com.github.upcraftlp.foolslib.api.util;
+package com.github.upcraftlp.foolslib.api.world;
 
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;

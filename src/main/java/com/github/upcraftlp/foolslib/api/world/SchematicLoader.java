@@ -2,13 +2,11 @@ package com.github.upcraftlp.foolslib.api.world;
 
 import com.github.upcraftlp.foolslib.FoolsLib;
 import com.google.common.annotations.Beta;
-import net.minecraft.client.renderer.BlockModelRenderer;
 import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.BlockPos;
-import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.Constants;

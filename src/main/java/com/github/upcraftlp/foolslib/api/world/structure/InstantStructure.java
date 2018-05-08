@@ -1,7 +1,7 @@
 package com.github.upcraftlp.foolslib.api.world.structure;
 
 import com.github.upcraftlp.foolslib.FoolsLib;
-import com.github.upcraftlp.foolslib.api.util.WorldScheduledTask;
+import com.github.upcraftlp.foolslib.api.world.WorldScheduledTask;
 import net.minecraft.block.Block;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.state.IBlockState;

@@ -1,6 +1,6 @@
 package com.github.upcraftlp.foolslib.api.luck.event;
 
-import com.github.upcraftlp.foolslib.api.util.WorldScheduledTask;
+import com.github.upcraftlp.foolslib.api.world.WorldScheduledTask;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.ResourceLocation;

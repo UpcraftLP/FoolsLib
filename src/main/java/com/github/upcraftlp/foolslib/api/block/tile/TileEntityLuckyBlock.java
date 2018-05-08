@@ -1,5 +1,6 @@
 package com.github.upcraftlp.foolslib.api.block.tile;
 
+import com.github.upcraftlp.foolslib.FoolsLib;
 import com.github.upcraftlp.foolslib.api.luck.event.LuckyEventProvider;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
@@ -23,6 +24,10 @@ public class TileEntityLuckyBlock extends TileEntity implements LuckyEventProvid
         //NO-OP
     }
 
+    public TileEntityLuckyBlock(ResourceLocation luckyBlock) {
+        this.setLuckyBlock(luckyBlock);
+    }
+
     @Override
     public void readFromNBT(NBTTagCompound compound) {
         super.readFromNBT(compound);
@@ -34,7 +39,7 @@ public class TileEntityLuckyBlock extends TileEntity implements LuckyEventProvid
     public void writeToNBT(NBTTagCompound compound) {
         super.writeToNBT(compound);
         compound.setByte("luck", this.luck);
-        compound.setString("lucky_block", this.luckyBlock.toString());
+        compound.setString("lucky_block", this.luckyBlock != null ? this.luckyBlock.toString() : FoolsLib.LUCKY_BLOCK.toString());
     }
 
     @Override

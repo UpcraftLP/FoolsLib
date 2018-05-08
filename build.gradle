@@ -297,8 +297,8 @@ task signJar(type: SignJar, dependsOn: reobfJar) {
     outputFile = jar.archivePath
 }
 tasks.build.dependsOn signJar, signApiJar, signJavadocJar, signDeobfJar
-tasks.publish.dependsOn build
-tasks.curseforge.dependsOn publish
+tasks.publish.dependsOn signJar, signApiJar, signJavadocJar, signDeobfJar
+tasks.curseforge.dependsOn publish, signJar, signApiJar, signJavadocJar, signDeobfJar, build
 
 publishing {
     publications {

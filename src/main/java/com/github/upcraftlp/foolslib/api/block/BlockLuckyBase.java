@@ -101,7 +101,7 @@ public class BlockLuckyBase extends BlockBase {
 
     @Override
     public TileEntity createTileEntity(World world, IBlockState state) {
-        return new TileEntityLuckyBlock();
+        return new TileEntityLuckyBlock(this.blockName);
     }
 
     @Override

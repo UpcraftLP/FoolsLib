@@ -1,6 +1,6 @@
 package com.github.upcraftlp.foolslib.api.luck.event.bow;
 
-import com.github.upcraftlp.foolslib.api.util.WorldScheduledTask;
+import com.github.upcraftlp.foolslib.api.world.WorldScheduledTask;
 import net.minecraft.block.BlockStone;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
