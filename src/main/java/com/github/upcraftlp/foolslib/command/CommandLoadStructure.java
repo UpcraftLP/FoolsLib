@@ -46,7 +46,7 @@ public class CommandLoadStructure extends CommandBase {
                 args.length == 1 ? getListOfStringsMatchingLastWord(args, StructureRegistry.getStructures()) :
                 args.length > 0 && args.length < 5 ? func_175771_a(args, 1, pos) :
                 args.length == 5 ? getListOfStringsMatchingLastWord(args, "true", "false") :
-                null;
+                        null;
     }
 
     @Override

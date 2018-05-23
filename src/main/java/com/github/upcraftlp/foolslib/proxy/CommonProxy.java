@@ -10,6 +10,7 @@ import com.github.upcraftlp.foolslib.command.CommandLoadStructure;
 import com.github.upcraftlp.foolslib.config.FoolsConfig;
 import com.github.upcraftlp.foolslib.init.FoolsBlocks;
 import com.github.upcraftlp.foolslib.util.AutoRegistry;
+import com.github.upcraftlp.foolslib.util.StructureUnloader;
 import com.github.upcraftlp.foolslib.world.gen.WorldGeneratorLuckyBlocks;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLInterModComms;
@@ -42,7 +43,11 @@ public class CommonProxy {
     }
 
     public void postInit(FMLPostInitializationEvent event) {
-
+        try {
+            ReflectionHelper.findMethod(StructureUnloader.class, null, new String[]{"init"}).invoke(null);
+        } catch (Exception e) {
+            FoolsLib.getLogger().error("unable to finish initialization of FoolsLib API", e);
+        }
     }
 
     public void serverStarting(FMLServerStartingEvent event) {

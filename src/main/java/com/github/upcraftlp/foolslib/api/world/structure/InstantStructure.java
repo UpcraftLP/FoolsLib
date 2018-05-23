@@ -24,8 +24,8 @@ import java.util.Set;
 public abstract class InstantStructure {
 
     protected static final Random RANDOM = new Random();
-    private ResourceLocation block;
-    private int meta;
+    private final ResourceLocation block;
+    private final int meta;
 
     public InstantStructure(ResourceLocation block, int meta) {
         this.block = block;
@@ -59,8 +59,9 @@ public abstract class InstantStructure {
     public void placeBlocksInWorld(Entity placer, World world, BlockPos start, boolean preserveBlocks) {
         IBlockState state = this.getBlock(placer);
         for(BlockPos pos : this.getPositions(placer, world, start)) {
-            if(preserveBlocks && !world.getBlockState(pos).getBlock().isReplaceable(world, pos)) continue;
-            else world.setBlockState(pos, state);
+            if(!preserveBlocks || world.getBlockState(pos).getBlock().isReplaceable(world, pos)) {
+                world.setBlockState(pos, state);
+            }
         }
     }
 

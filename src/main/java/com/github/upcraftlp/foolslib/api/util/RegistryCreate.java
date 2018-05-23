@@ -10,7 +10,7 @@ import java.lang.annotation.Target;
 public @interface RegistryCreate {
 
     /**
-     * The mod id to register the items with
+     * The mod id to register the item with
      */
     String modid();
 

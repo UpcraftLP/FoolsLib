@@ -1,5 +1,6 @@
 package com.github.upcraftlp.foolslib.api.luck.event;
 
+import com.github.upcraftlp.foolslib.api.luck.ILuckyEvent;
 import com.github.upcraftlp.foolslib.api.world.WorldScheduledTask;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.util.BlockPos;
@@ -8,7 +9,7 @@ import net.minecraft.world.World;
 
 import java.lang.ref.WeakReference;
 
-public class DelayedEvent extends LuckyEvent {
+public class DelayedEvent implements ILuckyEvent {
 
     private final int delayTicks;
     private final Runnable task;

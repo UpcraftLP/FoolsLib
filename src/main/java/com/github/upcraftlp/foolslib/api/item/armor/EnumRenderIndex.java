@@ -6,5 +6,5 @@ public enum EnumRenderIndex {
     IRON,
     DIAMOND,
     GOLD,
-    NONE;
+    NONE
 }

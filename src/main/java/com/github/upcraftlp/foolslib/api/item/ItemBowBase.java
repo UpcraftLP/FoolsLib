@@ -18,7 +18,7 @@ public class ItemBowBase extends ItemBow implements ICustomModelProvider {
     @SideOnly(Side.CLIENT)
     private ModelResourceLocation[] pullingStates;
 
-    private String name;
+    protected final String name;
 
     /**
      * how many ticks it takes to reach the final pulling state

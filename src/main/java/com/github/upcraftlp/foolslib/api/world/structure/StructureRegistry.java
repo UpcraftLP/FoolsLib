@@ -18,6 +18,7 @@ public class StructureRegistry {
 
     private static final Map<ResourceLocation, Structure> REGISTRY = Maps.newConcurrentMap();
     private static final List<String> structures = new ArrayList<>();
+    static final List<Structure> loadedStructures = new ArrayList<>();
 
     public static ImmutableMap<ResourceLocation, Structure> getStructureRegistryImmutable() {
         return ImmutableMap.copyOf(REGISTRY);
@@ -40,6 +41,14 @@ public class StructureRegistry {
         if(structureExists(structure)) GameRegistry.registerWorldGenerator(new WorldGeneratorStructure(structure), 100000);
     }
 
+    public static void registerSchematic(String structure) {
+        registerSchematic(new ResourceLocation(structure));
+    }
+
+    public static void registerSchematic(ResourceLocation structure) {
+        registerStructure(structure, new StructureSchematic(structure));
+    }
+
     public static boolean registerStructure(ResourceLocation registryName, Structure structure) {
         Objects.requireNonNull(registryName, "registry name of a structure cannot be null!");
         Objects.requireNonNull(structure);
@@ -49,7 +58,10 @@ public class StructureRegistry {
             if(structures.isEmpty()) structures.add(structureName);
             else for(int i = 0; i < structures.size(); i++) { //insert sorted
                 String s = structures.get(i);
-                if(s.compareTo(structureName) <= 0) structures.add(i, structureName);
+                if(s.compareTo(structureName) <= 0) {
+                    structures.add(i, structureName);
+                    break;
+                }
             }
             return true;
         }

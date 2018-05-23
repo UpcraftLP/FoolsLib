@@ -6,4 +6,6 @@ Version 1.0.0
 - structure placement fix
 - added lang file
 - added drop distribution
-
+- schematic structure loading
+- Lucky Events
+- added Potion Builder

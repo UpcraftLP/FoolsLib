@@ -13,8 +13,8 @@ import javax.annotation.Nullable;
 
 public interface LuckyEventProvider {
 
-    default void activateEvent(ResourceLocation block, World world, BlockPos pos, @Nullable EntityPlayerMP player, int luck) {
-        if(block == null) return; //error
+    default void activateEvent(@Nullable ResourceLocation block, World world, BlockPos pos, @Nullable EntityPlayerMP player, int luck) {
+        if(block == null) return; //silently discard error
         if(player == null) player = PlayerSelector.matchOnePlayer(FMLCommonHandler.instance().getMinecraftServerInstance(), "@p");
         if(player == null) FoolsLib.getLogger().error("{} unable to find a matching player at [{}, {}, {}] (luck: {})", block, pos.getX(), pos.getY(), pos.getZ(), luck);
         else {

@@ -1,45 +1,67 @@
 package com.github.upcraftlp.foolslib.api.potion;
 
+import com.github.upcraftlp.foolslib.api.util.CollectionUtils;
+import com.google.common.collect.Lists;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
-import net.minecraft.potion.Potion;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
+import net.minecraft.potion.PotionEffect;
+
+import java.util.List;
 
 public class PotionBuilder {
 
-    private Potion potion;
-    private boolean levelTwo, extended, splash;
+    public static final List<String> POTION_NAMES = Lists.newArrayList(
+            "of the Ender",
+            "of baasti",
+            "of the great Benny",
+            "of the Bomb",
+            "of the Bush",
+            "of the almighty Emperor",
+            "of Death",
+            "of Light",
+            "of Darkness",
+            "002",
+            "016",
+            "of Nothing",
+            "of the Sherwood Forest"
+    );
 
-    public PotionBuilder(Potion potion) {
-        this.potion = potion;
+    private NBTTagList potionList;
+    private boolean splash;
+
+    public PotionBuilder() {
+        this.clear();
     }
 
-    public PotionBuilder setLevelTwo() {
-        this.levelTwo = true;
+    public PotionBuilder clear() {
+        this.splash = false;
+        this.potionList = new NBTTagList();
         return this;
     }
 
-    public PotionBuilder setExtended() {
-        this.extended = true;
+    public PotionBuilder addEffect(PotionEffect effect) {
+        potionList.appendTag(effect.writeCustomPotionEffectToNBT(new NBTTagCompound()));
         return this;
     }
 
-    public PotionBuilder setSplash() {
+    public PotionBuilder setSplashPotion() {
         this.splash = true;
         return this;
     }
 
     public ItemStack build() {
-        int meta = 0;
-        if(this.potion != null) {
-            meta = potion.getId();
-            if(this.splash) meta |= 16384; //bit 14
-            else meta |= 8192;
+        ItemStack stack = new ItemStack(Items.potionitem, 1, this.splash ? 16384 : 0);
+        stack.setTagInfo("CustomPotionEffects", potionList);
+        stack.setStackDisplayName("Potion " + CollectionUtils.getRandomElementFromList(POTION_NAMES));
+        return stack;
+    }
 
-            if(this.levelTwo) meta |= 32; //bit 5
-            if(this.extended) meta |= 64; // bit 6
-
-        }
-        return new ItemStack(Items.potionitem, 1, meta);
+    public ItemStack buildAndClear() {
+        ItemStack ret = this.build();
+        this.clear();
+        return ret;
     }
 
 }

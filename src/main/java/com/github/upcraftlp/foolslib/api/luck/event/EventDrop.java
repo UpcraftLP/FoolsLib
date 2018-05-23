@@ -12,12 +12,21 @@ import java.util.List;
 
 public class EventDrop extends LuckyEvent {
 
-    private final List<ItemStack> stacks;
-    private final double maxRadius;
+    protected final List<ItemStack> stacks;
+    protected final double maxRadius;
+    protected double chance;
+
+    public EventDrop(double maxSpreadRadius, List<ItemStack> stacks, double chance) {
+        this.maxRadius = maxSpreadRadius;
+        this.stacks = stacks;
+    }
+
+    public EventDrop(double maxSpreadRadius, List<ItemStack> stacks) {
+        this(maxSpreadRadius, stacks, 1.0D);
+    }
 
     public EventDrop(double maxSpreadRadius, ItemStack... stacks) {
-        this.stacks = Arrays.asList(stacks);
-        this.maxRadius = maxSpreadRadius;
+        this(maxSpreadRadius, Arrays.asList(stacks));
     }
 
     public EventDrop(ItemStack... stacks) {
@@ -27,13 +36,11 @@ public class EventDrop extends LuckyEvent {
     @Override
     public void activate(ResourceLocation block, World world, BlockPos pos, EntityPlayerMP player, int luck) {
         stacks.forEach(stack -> {
-
             //see http://mathworld.wolfram.com/DiskPointPicking.html
             double angle = Math.toRadians(360 * RANDOM.nextDouble());
-            double sqrt_r = Math.sqrt(Math.random() * maxRadius);
+            double sqrt_r = Math.sqrt(RANDOM.nextDouble() * maxRadius);
             double xOffset = sqrt_r * Math.cos(angle);
             double zOffset = sqrt_r * Math.sin(angle);
-
             EntityItem item = new EntityItem(world, pos.getX() + xOffset, pos.getY() + RANDOM.nextDouble(), pos.getZ() + zOffset, stack.copy());
             world.spawnEntityInWorld(item);
         });

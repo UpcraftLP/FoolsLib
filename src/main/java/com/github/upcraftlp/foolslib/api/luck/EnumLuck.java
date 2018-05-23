@@ -16,6 +16,14 @@ public enum EnumLuck {
     private static final Random RANDOM = new Random();
 
     //FIXME unify into one function
+    //e^(-r^2), now what with the L?
+    /*public static EnumLuck getRandomValue(int luck) {
+        double r = RANDOM.nextDouble();
+        double l = luck / 100.0D;
+        Math.pow(Math.E, -Math.pow(r, 2));
+        //return values()[(int) MathHelper.clamMath.round(Math.pow(r, l) * 4)];
+
+    }*/
     public static EnumLuck getRandomValue(int luck) {
         double result = RANDOM.nextDouble();
         if(luck < -70) {                                                            //luck: -100 to -69
@@ -33,8 +41,10 @@ public enum EnumLuck {
             return BAD;                                                             //50%
         }
         else if(luck <= 20) {                                                       //luck: -20 to +20
-            if(result < 0.20D) return RANDOM.nextBoolean() ? VERY_BAD : VERY_GOOD;  //10% + 10%
-            if(result < 0.60D) return RANDOM.nextBoolean() ? BAD : GOOD;            //20% + 20%
+            if(result < 0.10D) return VERY_BAD;                                     //10%
+            if(result < 0.20D) return VERY_GOOD;                                    //10%
+            if(result < 0.40D) return BAD;                                          //20%
+            if(result < 0.60D) return GOOD;                                         //20%
             return NEUTRAL;                                                         //40%
         }
         else if(luck <= 70) {                                                       //luck +21 to +70

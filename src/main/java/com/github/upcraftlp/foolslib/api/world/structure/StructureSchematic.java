@@ -1,7 +1,12 @@
 package com.github.upcraftlp.foolslib.api.world.structure;
 
 import com.github.upcraftlp.foolslib.FoolsLib;
+import com.github.upcraftlp.foolslib.api.util.ThreadUtils;
+import com.github.upcraftlp.foolslib.config.FoolsConfig;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Maps;
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockLiquid;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;
@@ -15,8 +20,11 @@ import net.minecraft.util.BlockPos;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.Constants;
+import net.minecraftforge.fluids.IFluidBlock;
 
+import java.io.FileNotFoundException;
 import java.io.InputStream;
+import java.util.Map;
 import java.util.Objects;
 
 public class StructureSchematic extends Structure {
@@ -63,8 +71,10 @@ public class StructureSchematic extends Structure {
     }
 
     @Override
-    protected void loadStructure() {
-        try (InputStream stream = MinecraftServer.class.getResourceAsStream("/assets/" + this.structure.getResourceDomain() + "/structures/" + this.structure.getResourcePath())) {
+    public void loadStructure() {
+        String path = "/assets/" + this.structure.getResourceDomain() + "/structures/" + this.structure.getResourcePath();
+        try (InputStream stream = MinecraftServer.class.getResourceAsStream(path)) {
+            if(stream == null) throw new FileNotFoundException(path);
             NBTTagCompound nbt = CompressedStreamTools.readCompressed(stream);
             String format = nbt.getString(SCHEMATIC_KEY_MATERIALS);
             if(!format.equals(SCHEMATIC_ALPHA_FORMAT)) {
@@ -87,7 +97,7 @@ public class StructureSchematic extends Structure {
     }
 
     @Override
-    protected void unloadStructure() {
+    public void unloadStructure() {
         this.blocks = new byte[0];
         this.blockData = new byte[0];
         this.width = this.height = this.length = 0;
@@ -144,35 +154,79 @@ public class StructureSchematic extends Structure {
     }
 
     @Override
-    protected void doPlaceBlocksDelay(World world, BlockPos startPos, boolean airReplaceBlocks, int delayTicks) {
-        new Thread(){
-            @Override
-            public void run() {
-                for(int y = 0; y < height; y++) {
-                    for(int z = 0; z < length; z++) {
-                        for(int x = 0; x < width; x++) {
-                            try {
-                                this.wait(50 * delayTicks); //delay
-                            } catch(InterruptedException e) {
-                                //ignore
-                            }
-                            int index = (y * length + z) * width + x;
-                            Block block = Block.getBlockById(blocks[index]);
-                            if(!airReplaceBlocks && block == Blocks.air) continue;
-
-                            //TODO integrity check for damaged structures?
-                            IBlockState blockState = block.getStateFromMeta(blockData[index]);
-                            BlockPos targetPos = startPos.add(x, y, z);
-                            MinecraftServer.getServer().addScheduledTask(() -> {
-                                //TODO rotation
-                                //block.rotateBlock();
-                                //rotate TE!
-                                world.setBlockState(targetPos, blockState, 2);
-                            });
+    protected void doPlaceBlocksDelay(World world, BlockPos startPos, boolean airReplaceBlocks, int blockPlaceCountAverage) {
+        new Thread(() -> {
+            Map<BlockPos, IBlockState> states = Maps.newHashMap();
+            Map<BlockPos, IBlockState> liquids = Maps.newHashMap();
+            int count = 0;
+            for(int x = 0; x < width; x++) {
+                for(int z = 0; z < length; z++) {
+                    for(int y = height - 1; y >= 0; y--) {
+                        int index = (y * length + z) * width + x;
+                        Block block = Block.getBlockById(blocks[index]);
+                        if((!airReplaceBlocks && block == Blocks.air)) continue;
+                        IBlockState blockState = block.getStateFromMeta(blockData[index]);
+                        BlockPos targetPos = startPos.add(x, y, z);
+                        if(block instanceof BlockLiquid || block instanceof IFluidBlock) { //BLockLiquid: vanilla fluids; IFluidBlock: Forge fluids
+                            liquids.put(targetPos, blockState);
+                            count++;
                         }
+                        else if(world.rand.nextDouble() < getIntegrity()) { //do integrity check, but only for non-fluid blocks.
+                            states.put(targetPos, blockState);
+                            count++;
+                        }
+                    }
+                    if(count >= blockPlaceCountAverage) {
+                        Map<BlockPos, IBlockState> stateMap = ImmutableMap.copyOf(states);
+                        states.clear();
+                        MinecraftServer.getServer().addScheduledTask(() -> stateMap.forEach((pos, state) -> {
+                            world.setBlockState(pos, state, 2);
+                            //TODO rotation
+                            //block.rotateBlock();
+                            //rotate TE!
+                        }));
+                        ThreadUtils.sleep(50); //delay 50ms = 1 tick
+                        count = 0;
                     }
                 }
             }
-        }.start();
+            if(count > 0) {
+                MinecraftServer.getServer().addScheduledTask(() -> states.forEach((pos, state) -> {
+                    world.setBlockState(pos, state, 2);
+                    //TODO rotation
+                    //block.rotateBlock();
+                    //rotate TE!
+                }));
+                ThreadUtils.sleep(50); //delay 50ms = 1 tick
+            }
+
+            if(!liquids.isEmpty()) {
+                MinecraftServer.getServer().addScheduledTask(() -> liquids.forEach((pos, state) -> world.setBlockState(pos, state, 2)));
+                if(FoolsConfig.isDebugMode) FoolsLib.getLogger().info("loaded {} fluid blocks in structure {}", liquids.size(), structure);
+            }
+            ThreadUtils.sleep(50); //delay 50ms = 1 tick
+
+            MinecraftServer.getServer().addScheduledTask(() -> {
+                //TileEntities
+                for(int i = 0; i < tileEntities.tagCount(); i++) {
+                    NBTTagCompound teData = tileEntities.getCompoundTagAt(i);
+                    TileEntity te = TileEntity.createAndLoadEntity(teData);
+                    if(te != null) {
+                        BlockPos pos = startPos.add(teData.getInteger(KEY_POS_X), teData.getInteger(KEY_POS_Y), teData.getInteger(KEY_POS_Z));
+                        if(world.isAirBlock(pos)) continue; //do not place tile entities if their block doesn't exist (integrity check)
+                        world.removeTileEntity(pos);
+                        te.setPos(pos);
+                        te.setWorldObj(world);
+                        world.setTileEntity(pos, te);
+                    }
+                }
+
+                //Entities
+                for(int i = 0; i < entities.tagCount(); i++) {
+                    Entity entity = EntityList.createEntityFromNBT(entities.getCompoundTagAt(i), world);
+                    world.spawnEntityInWorld(entity);
+                }
+            });
+        }).start();
     }
 }

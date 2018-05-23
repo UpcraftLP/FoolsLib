@@ -16,9 +16,10 @@ public class ItemBase extends Item {
         this.setUnlocalizedName(ModHelper.getActiveModID() + "." + name);
     }
 
-    public void setSubItemCount(int count) {
+    public ItemBase setSubItemCount(int count) {
         this.subItemCount = count;
         this.setHasSubtypes(count > 0);
+        return this;
     }
 
     public int getSubItemCount() {

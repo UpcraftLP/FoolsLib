@@ -1,11 +1,12 @@
 package com.github.upcraftlp.foolslib.api.luck.event;
 
+import com.github.upcraftlp.foolslib.api.luck.ILuckyEvent;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.network.play.server.S45PacketTitle;
 import net.minecraft.util.*;
 import net.minecraft.world.World;
 
-public class EventNotFound extends LuckyEvent {
+public class EventNotFound implements ILuckyEvent {
 
     @Override
     public void activate(ResourceLocation block, World world, BlockPos pos, EntityPlayerMP player, int luck) {

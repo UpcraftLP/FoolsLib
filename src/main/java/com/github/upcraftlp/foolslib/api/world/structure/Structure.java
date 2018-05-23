@@ -1,6 +1,7 @@
 package com.github.upcraftlp.foolslib.api.world.structure;
 
 import com.github.upcraftlp.foolslib.FoolsLib;
+import com.github.upcraftlp.foolslib.config.FoolsConfig;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.ResourceLocation;
@@ -15,6 +16,7 @@ public abstract class Structure {
     protected ResourceLocation structure;
     protected float integrity;
     protected boolean isLoaded;
+    protected boolean isPlacing;
 
     public Structure(ResourceLocation structure) {
         this.structure = structure;
@@ -53,32 +55,47 @@ public abstract class Structure {
         return new AxisAlignedBB(0, 0, 0, this.getWidth(), this.getHeight(), this.getLength());
     }
 
-    protected abstract void loadStructure();
+    public abstract void loadStructure();
 
-    protected abstract void unloadStructure();
+    public abstract void unloadStructure();
 
     /**
-     * @param airReplaceBlocks if structure air blocks should replace blocks already in the world
+     * @param airReplaceBlocks whether structure air blocks should replace blocks already in the world
      */
-    public void placeBlocksInWorld(World world, BlockPos startPos, boolean airReplaceBlocks) {
-        this.loadStructure();
-        if(this.isLoaded) {
+    public final void placeBlocksInWorld(World world, BlockPos startPos, boolean airReplaceBlocks) {
+        synchronized(StructureRegistry.class) {
+            if(!this.isLoaded) {
+                this.loadStructure();
+                if(this.isLoaded) {
+                    StructureRegistry.loadedStructures.add(this);
+                    if(FoolsConfig.isDebugMode) FoolsLib.getLogger().info("Successfully loaded structure {} into memory", this.structure);
+                }
+                else {
+                    FoolsLib.getLogger().error("Unable to load structure {}", this.structure);
+                    return;
+                }
+            }
             if(this.getWidth() > 16 || this.getWidth() > 16 || this.getHeight() > 64) { //if > 1 chunk
-                this.doPlaceBlocksDelay(world, startPos, airReplaceBlocks, 1);
-                this.unloadStructure();
+                this.doPlaceBlocksDelay(world, startPos, airReplaceBlocks, 2000);
             }
             else this.doPlaceBlocks(world, startPos, airReplaceBlocks);
         }
-        else FoolsLib.getLogger().error("Unable to load structure {}", this.structure);
     }
 
     protected abstract void doPlaceBlocks(World world, BlockPos startPos, boolean airReplaceBlocks);
 
-    protected abstract void doPlaceBlocksDelay(World world, BlockPos startPos, boolean airReplaceBlocks, int delay);
+    /**
+     * @param airReplaceBlocks whether structure air blocks should replace blocks already in the world
+     * @param maxBlockCount how many blocks to place at once
+     */
+    protected abstract void doPlaceBlocksDelay(World world, BlockPos startPos, boolean airReplaceBlocks, int maxBlockCount);
 
     @Nullable
     public String getStructureType() {
         return null;
     }
 
+    public boolean canUnload() {
+        return !this.isPlacing;
+    }
 }

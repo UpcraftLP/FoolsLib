@@ -28,4 +28,5 @@ public class BowEvent {
             new WorldScheduledTask(() -> world.setBlockState(positionMarkers.get(index), copy[random.nextInt(copy.length)], 2)).schedule(i);
         }
     }
+
 }

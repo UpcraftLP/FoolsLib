@@ -1,5 +1,6 @@
 package com.github.upcraftlp.foolslib.api.luck.event;
 
+import com.github.upcraftlp.foolslib.api.luck.ILuckyEvent;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.BlockPos;
@@ -7,7 +8,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 
-public class EventCommand extends LuckyEvent {
+public class EventCommand implements ILuckyEvent {
 
     protected final String[] commands;
 
