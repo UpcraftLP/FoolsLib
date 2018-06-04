@@ -1,11 +1,13 @@
 package com.github.upcraftlp.foolslib.api.util;
 
 import com.github.upcraftlp.foolslib.FoolsLib;
+import com.github.upcraftlp.foolslib.api.recipe.LuckRecipe;
 import net.minecraft.util.StringUtils;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+import net.minecraftforge.oredict.RecipeSorter;
 
 import javax.annotation.Nullable;
 import java.io.File;
@@ -32,6 +34,7 @@ public class ModHelper {
     @SuppressWarnings("unused")
     private static void setup(FMLPreInitializationEvent event) {
         if(hasLoaded) throw new IllegalStateException("attempted setup twice!");
+        RecipeSorter.register(FoolsLib.MODID + ":luck_shapeless", LuckRecipe.class, RecipeSorter.Category.SHAPELESS, "after:minecraft:shapeless");
         setActiveModID(FoolsLib.MODID);
         configDir = new File(event.getModConfigurationDirectory(), "foolscraft");
         if(!configDir.exists()) {
@@ -57,7 +60,7 @@ public class ModHelper {
         if(StringUtils.isNullOrEmpty(version)) version = FMLCommonHandler.instance().findContainerFor(name).getVersion();
         if("@VERSION@".equals(version)) {
             version = CalendarUtils.getFormattedDateTime();
-            FoolsLib.getLogger().warn("Mod {} is using version @VERSION@, substituting current launch time {}as temporary version. The config will not persist!", name, version);
+            FoolsLib.getLogger().warn("Mod {} is using version @VERSION@, substituting current launch time {} as temporary version. The config will not persist!", name, version);
         }
         if(!hasLoaded) throw new IllegalStateException(name + " tried to get a config file before setup has finished!");
         return new Configuration(new File(configDir, name + ".cfg"), version);
