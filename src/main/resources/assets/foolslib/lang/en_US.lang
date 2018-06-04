@@ -1,5 +1,9 @@
 #PARSE_ESCAPES
 
+#Items
+item.foolslib.lucky_bow.name=Lucky Bow
+tile.foolslib.lucky_block.name=Lucky Block
+
 #Misc
 desc.silverfish.name=Silverfish Block
 desc.foolslib.luck=Luck: %s
