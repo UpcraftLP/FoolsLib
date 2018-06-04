@@ -13,12 +13,15 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class StructureRegistry {
 
     private static final Map<ResourceLocation, Structure> REGISTRY = Maps.newConcurrentMap();
     private static final List<String> structures = new ArrayList<>();
     static final List<Structure> loadedStructures = new ArrayList<>();
+    public static final ExecutorService EXECUTOR_SERVICE = Executors.newFixedThreadPool(5);
 
     public static ImmutableMap<ResourceLocation, Structure> getStructureRegistryImmutable() {
         return ImmutableMap.copyOf(REGISTRY);
@@ -32,21 +35,21 @@ public class StructureRegistry {
         return REGISTRY.get(structure);
     }
 
-    public static void registerSchematicWorldGen(String structure) {
-        registerSchematicWorldGen(new ResourceLocation(structure));
+    public static void registerSchematicWorldGen(String structure, int offsetX, int offsetY, int offsetZ) {
+        registerSchematicWorldGen(new ResourceLocation(structure), offsetX, offsetY, offsetZ);
     }
 
-    public static void registerSchematicWorldGen(ResourceLocation structure) {
-        registerStructure(structure, new StructureSchematic(structure));
+    public static void registerSchematicWorldGen(ResourceLocation structure, int offsetX, int offsetY, int offsetZ) {
+        registerStructure(structure, new StructureSchematic(structure, offsetX, offsetY, offsetZ));
         if(structureExists(structure)) GameRegistry.registerWorldGenerator(new WorldGeneratorStructure(structure), 100000);
     }
 
-    public static void registerSchematic(String structure) {
-        registerSchematic(new ResourceLocation(structure));
+    public static void registerSchematic(String structure, int offsetX, int offsetY, int offsetZ) {
+        registerSchematic(new ResourceLocation(structure), offsetX, offsetY, offsetZ);
     }
 
-    public static void registerSchematic(ResourceLocation structure) {
-        registerStructure(structure, new StructureSchematic(structure));
+    public static void registerSchematic(ResourceLocation structure, int offsetX, int offsetY, int offsetZ) {
+        registerStructure(structure, new StructureSchematic(structure, offsetX, offsetY, offsetZ));
     }
 
     public static boolean registerStructure(ResourceLocation registryName, Structure structure) {

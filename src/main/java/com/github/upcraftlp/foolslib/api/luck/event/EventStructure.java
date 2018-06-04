@@ -23,6 +23,6 @@ public class EventStructure implements ILuckyEvent {
     @Override
     public void activate(ResourceLocation block, World world, BlockPos pos, EntityPlayerMP player, int luck) {
         Structure structure = StructureRegistry.getStructure(this.structure);
-        structure.placeBlocksInWorld(world, pos.add(-Math.round(structure.getWidth() / 2.0F), 0.0D, - Math.round(structure.getLength() / 2.0F)), false);
+        structure.placeBlocksInWorld(world, pos, false);
     }
 }

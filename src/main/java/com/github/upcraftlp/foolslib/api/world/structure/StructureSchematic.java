@@ -47,12 +47,12 @@ public class StructureSchematic extends Structure {
     private byte[] blocks, blockData;
     private NBTTagList tileEntities, entities;
 
-    public StructureSchematic(ResourceLocation structure) {
-        super(structure);
+    public StructureSchematic(ResourceLocation structure, int offsetX, int offsetY, int offsetZ) {
+        super(structure, offsetX, offsetY, offsetZ);
     }
 
-    public StructureSchematic(String structure) {
-        super(structure);
+    public StructureSchematic(String structure, int offsetX, int offsetY, int offsetZ) {
+        super(structure, offsetX, offsetY, offsetZ);
     }
 
     @Override
@@ -112,6 +112,7 @@ public class StructureSchematic extends Structure {
 
     @Override
     protected void doPlaceBlocks(World world, BlockPos startPos, boolean airReplaceBlocks) {
+        this.isPlacing = true;
         //blocks
         for(int y = 0; y < this.height; y++) {
             for(int z = 0; z < this.length; z++) {
@@ -119,16 +120,15 @@ public class StructureSchematic extends Structure {
                     int index = (y * this.length + z) * this.width + x;
                     Block block = Block.getBlockById(blocks[index]);
                     if(!airReplaceBlocks && block == Blocks.air) continue;
+                    if(world.rand.nextDouble() < getIntegrity()) { //do integrity check
+                        BlockPos pos = startPos.add(x, y, z);
+                        IBlockState blockState = block.getStateFromMeta(blockData[index]);
+                        world.setBlockState(pos, blockState, 2);
 
-                    //TODO integrity check for damaged structures?
-                    IBlockState blockState = block.getStateFromMeta(blockData[index]);
-
-
-                    world.setBlockState(startPos.add(x, y, z), blockState, 2);
-
-                    //TODO rotation
-                    //block.rotateBlock();
-                    //rotate TE!
+                        //TODO rotation
+                        //block.rotateBlock();
+                        //rotate TE!
+                    }
                 }
             }
         }
@@ -139,6 +139,7 @@ public class StructureSchematic extends Structure {
             TileEntity te = TileEntity.createAndLoadEntity(teData);
             if(te != null) {
                 BlockPos pos = startPos.add(teData.getInteger(KEY_POS_X), teData.getInteger(KEY_POS_Y), teData.getInteger(KEY_POS_Z));
+                if(world.isAirBlock(pos)) continue;
                 world.removeTileEntity(pos);
                 te.setPos(pos);
                 te.setWorldObj(world);
@@ -151,11 +152,13 @@ public class StructureSchematic extends Structure {
             Entity entity = EntityList.createEntityFromNBT(entities.getCompoundTagAt(i), world);
             world.spawnEntityInWorld(entity);
         }
+        this.isPlacing = false;
     }
 
     @Override
     protected void doPlaceBlocksDelay(World world, BlockPos startPos, boolean airReplaceBlocks, int blockPlaceCountAverage) {
-        new Thread(() -> {
+        this.isPlacing = true;
+        StructureRegistry.EXECUTOR_SERVICE.submit(() -> {
             Map<BlockPos, IBlockState> states = Maps.newHashMap();
             Map<BlockPos, IBlockState> liquids = Maps.newHashMap();
             int count = 0;
@@ -199,12 +202,10 @@ public class StructureSchematic extends Structure {
                 }));
                 ThreadUtils.sleep(50); //delay 50ms = 1 tick
             }
-
             if(!liquids.isEmpty()) {
                 MinecraftServer.getServer().addScheduledTask(() -> liquids.forEach((pos, state) -> world.setBlockState(pos, state, 2)));
                 if(FoolsConfig.isDebugMode) FoolsLib.getLogger().info("loaded {} fluid blocks in structure {}", liquids.size(), structure);
             }
-            ThreadUtils.sleep(50); //delay 50ms = 1 tick
 
             MinecraftServer.getServer().addScheduledTask(() -> {
                 //TileEntities
@@ -226,7 +227,8 @@ public class StructureSchematic extends Structure {
                     Entity entity = EntityList.createEntityFromNBT(entities.getCompoundTagAt(i), world);
                     world.spawnEntityInWorld(entity);
                 }
+                this.isPlacing = false;
             });
-        }).start();
+        });
     }
 }

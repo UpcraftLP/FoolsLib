@@ -14,12 +14,18 @@ public abstract class Structure {
 
     @Nullable
     protected ResourceLocation structure;
+    protected int offsetX;
+    protected int offsetY;
+    protected int offsetZ;
     protected float integrity;
     protected boolean isLoaded;
     protected boolean isPlacing;
 
-    public Structure(ResourceLocation structure) {
+    public Structure(ResourceLocation structure, int offsetX, int offsetY, int offsetZ) {
         this.structure = structure;
+        this.offsetX = offsetX;
+        this.offsetY = offsetY;
+        this.offsetZ = offsetZ;
         if(!StringUtils.isNullOrEmpty(this.getStructureType())) {
             String path = structure.getResourcePath();
             if(!path.endsWith(this.getStructureType())) {
@@ -28,8 +34,8 @@ public abstract class Structure {
         }
     }
 
-    public Structure(String structure) {
-        this(new ResourceLocation(structure));
+    public Structure(String structure, int offsetX, int offsetY, int offsetZ) {
+        this(new ResourceLocation(structure), offsetX, offsetY, offsetZ);
     }
 
     @Nullable
@@ -75,10 +81,12 @@ public abstract class Structure {
                     return;
                 }
             }
+            startPos = startPos.add(-this.getWidth() / 2 + this.offsetX, this.offsetY, -this.getLength() / 2 + this.offsetZ);
             if(this.getWidth() > 16 || this.getWidth() > 16 || this.getHeight() > 64) { //if > 1 chunk
                 this.doPlaceBlocksDelay(world, startPos, airReplaceBlocks, 2000);
             }
             else this.doPlaceBlocks(world, startPos, airReplaceBlocks);
+            if(FoolsConfig.isDebugMode) FoolsLib.getLogger().info("Placed structure {} at [{}, {}, {}]", this.structure, startPos.getX(), startPos.getY(), startPos.getZ());
         }
     }
 
