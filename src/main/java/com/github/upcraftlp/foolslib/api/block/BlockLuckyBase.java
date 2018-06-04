@@ -99,6 +99,10 @@ public class BlockLuckyBase extends BlockBase {
         return true;
     }
 
+    public ResourceLocation getBlockName() {
+        return blockName;
+    }
+
     @Override
     public TileEntity createTileEntity(World world, IBlockState state) {
         return new TileEntityLuckyBlock(this.blockName);
