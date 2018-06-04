@@ -9,3 +9,4 @@ Version 1.0.0
 - schematic structure loading
 - Lucky Events
 - added Potion Builder
+- added lucky block upgrade crafting
