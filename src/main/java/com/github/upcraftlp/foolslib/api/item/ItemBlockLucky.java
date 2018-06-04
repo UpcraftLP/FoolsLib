@@ -1,5 +1,6 @@
 package com.github.upcraftlp.foolslib.api.item;
 
+import com.github.upcraftlp.foolslib.api.client.ItemMeshDefinitionCustom;
 import com.github.upcraftlp.foolslib.api.luck.EnumLuck;
 import com.github.upcraftlp.foolslib.api.model.ICustomModelProvider;
 import net.minecraft.block.Block;
@@ -9,7 +10,6 @@ import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.MathHelper;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.fml.relauncher.Side;
@@ -48,7 +48,7 @@ public class ItemBlockLucky extends ItemBlock implements ICustomModelProvider {
         String modelName = itemRegistry.getNameForObject(this).toString();
         itemModel = new ModelResourceLocation(modelName, "inventory");
         ModelBakery.addVariantName(this, modelName);
-        ModelLoader.setCustomMeshDefinition(this, stack -> itemModel);
+        ModelLoader.setCustomMeshDefinition(this, ItemMeshDefinitionCustom.create(stack -> itemModel));
     }
 
 }

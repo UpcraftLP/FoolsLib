@@ -11,3 +11,4 @@ Version 1.0.0
 - added Potion Builder
 - added lucky block upgrade crafting
 - added crafting recipes
+- added lambda mesh definition for item models
