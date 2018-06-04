@@ -3,6 +3,7 @@ package com.github.upcraftlp.foolslib.api.recipe;
 import com.github.upcraftlp.foolslib.api.luck.LuckyBlockRegistry;
 import net.minecraft.block.Block;
 import net.minecraft.inventory.InventoryCrafting;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.util.MathHelper;
@@ -12,12 +13,12 @@ import net.minecraftforge.common.ForgeHooks;
 
 public class LuckRecipe implements IRecipe {
 
-    private final Block luckyblock;
+    private final Item luckyblock;
     private final ResourceLocation blockName;
 
     public LuckRecipe(ResourceLocation blockName) {
         this.blockName = blockName;
-        this.luckyblock = (Block) Block.blockRegistry.getObject(blockName);
+        this.luckyblock = Item.getItemFromBlock((Block) Block.blockRegistry.getObject(blockName));
     }
 
     @Override
@@ -68,7 +69,7 @@ public class LuckRecipe implements IRecipe {
         int ret = -1;
         for(int i = 0; i < inv.getSizeInventory(); i++) {
             ItemStack stack = inv.getStackInSlot(i);
-            if(stack != null && Block.getBlockFromItem(stack.getItem()) == this.luckyblock) {
+            if(stack != null && stack.getItem() == this.luckyblock) {
                     if(ret == -1) ret = i;
                     else return -1; //we found more than one block
             }

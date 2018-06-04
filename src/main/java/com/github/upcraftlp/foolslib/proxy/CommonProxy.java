@@ -4,6 +4,7 @@ import com.github.upcraftlp.foolslib.FoolsLib;
 import com.github.upcraftlp.foolslib.api.block.tile.TileEntityLuckyBlock;
 import com.github.upcraftlp.foolslib.api.luck.LuckyHelper;
 import com.github.upcraftlp.foolslib.api.net.NetworkHandler;
+import com.github.upcraftlp.foolslib.api.recipe.LuckRecipe;
 import com.github.upcraftlp.foolslib.api.util.ModHelper;
 import com.github.upcraftlp.foolslib.api.util.UpdateChecker;
 import com.github.upcraftlp.foolslib.command.CommandLoadStructure;
@@ -40,6 +41,9 @@ public class CommonProxy {
         GameRegistry.registerTileEntity(TileEntityLuckyBlock.class, FoolsLib.LUCKY_BLOCK.toString());
         LuckyHelper.registerDefaultDrops(FoolsLib.LUCKY_BLOCK);
         LuckyHelper.registerDefaultDrops(FoolsLib.LUCKY_BOW);
+        GameRegistry.addRecipe(new LuckRecipe(FoolsLib.LUCKY_BLOCK));
+        LuckyHelper.registerDefaultRecipes(FoolsLib.LUCKY_BLOCK);
+        //TODO bow recipe!
     }
 
     public void postInit(FMLPostInitializationEvent event) {
