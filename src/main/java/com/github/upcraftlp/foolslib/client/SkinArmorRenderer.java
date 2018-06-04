@@ -4,8 +4,9 @@ import com.github.upcraftlp.foolslib.FoolsLib;
 import com.github.upcraftlp.foolslib.api.item.armor.EnumArmorType;
 import com.github.upcraftlp.foolslib.api.item.armor.ItemSkinArmor;
 import com.github.upcraftlp.foolslib.api.util.EventBusSubscriber;
-import net.minecraft.client.model.ModelBiped;
+import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.event.RenderPlayerEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
@@ -13,7 +14,7 @@ import net.minecraftforge.fml.relauncher.Side;
 @EventBusSubscriber(side = Side.CLIENT, value = FoolsLib.MODID, forge = true)
 public class SkinArmorRenderer {
 
-    private static final ModelBiped model = new ModelBiped();
+    private static ResourceLocation armorTexture;
 
     @SubscribeEvent
     public void onRenderArmor(RenderPlayerEvent.Pre event) {
@@ -23,9 +24,22 @@ public class SkinArmorRenderer {
                 return;
             }
         }
-        event.setCanceled(true);
         ItemSkinArmor armor = (ItemSkinArmor) event.entityPlayer.getCurrentArmor(0).getItem();
-        event.renderer.bindTexture(armor.getSkinTexture());
-        model.render(event.entityPlayer, event.entityPlayer.limbSwing, event.entityPlayer.limbSwingAmount, event.entityPlayer.getAge(), event.entityPlayer.rotationYawHead, event.entityPlayer.rotationPitch, 1.1F);
+        armorTexture = armor.getSkinTexture();
+    }
+
+    @SubscribeEvent
+    public void afterRenderArmor(RenderPlayerEvent.Post event) {
+        if(armorTexture != null) armorTexture = null;
+    }
+
+    @SuppressWarnings("unused")
+    public static ResourceLocation getTexture(AbstractClientPlayer player) {
+        if(hasSkinTexture()) return armorTexture;
+        else return player.getLocationSkin();
+    }
+
+    public static boolean hasSkinTexture() {
+        return armorTexture != null;
     }
 }

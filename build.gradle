@@ -86,9 +86,12 @@ minecraft {
     replace "@ISSUETRACKER@", project.hasProperty('issue_tracker') ? findProperty('issue_tracker') : ""
     replaceIn project.reference_class
 
-    clientRunArgs += "--username=${username}"
-    if(project.hasProperty('dev_password')) {
-        clientRunArgs += "--password=${dev_password}"
+    if(project.hasProperty('dev_uuid')) {
+        clientRunArgs += "--uuid=${dev_uuid}"
+    }
+    else {
+        clientRunArgs += "--username=${username}"
+        if(project.hasProperty('dev_password')) clientRunArgs += "--password=${dev_password}"
     }
 
     if(project.hasProperty('loading_plugin')) {
@@ -129,7 +132,7 @@ dependencies {
     tasks.dependencies.dependsOn fetch
     runtime files("${lib_folder}/luckyblock.zip")
 
-    runtime "codechicken:NotEnoughItems:${project.mc_version}-${project.nei_version}:dev"
+    compile "codechicken:NotEnoughItems:${project.mc_version}-${project.nei_version}:dev"
     runtime "codechicken:CodeChickenCore:${project.mc_version}-${project.chickencore_version}:dev"
     runtime "codechicken:CodeChickenLib:${project.mc_version}-${project.ccl_version}:dev"
 }
