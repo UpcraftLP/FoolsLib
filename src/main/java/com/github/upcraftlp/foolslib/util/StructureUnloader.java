@@ -40,7 +40,6 @@ public final class StructureUnloader {
             }
             if(tempStructureList == null) throw new RuntimeException("Error initializing Structure Unloader!");
             STRUCTURES = tempStructureList;
-            f.setAccessible(false);
         }
 
         @Override
