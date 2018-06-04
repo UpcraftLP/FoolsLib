@@ -10,3 +10,4 @@ Version 1.0.0
 - Lucky Events
 - added Potion Builder
 - added lucky block upgrade crafting
+- added crafting recipes

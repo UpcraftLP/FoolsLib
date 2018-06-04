@@ -10,9 +10,13 @@ import com.github.upcraftlp.foolslib.api.util.UpdateChecker;
 import com.github.upcraftlp.foolslib.command.CommandLoadStructure;
 import com.github.upcraftlp.foolslib.config.FoolsConfig;
 import com.github.upcraftlp.foolslib.init.FoolsBlocks;
+import com.github.upcraftlp.foolslib.init.FoolsItems;
 import com.github.upcraftlp.foolslib.util.AutoRegistry;
 import com.github.upcraftlp.foolslib.util.StructureUnloader;
 import com.github.upcraftlp.foolslib.world.gen.WorldGeneratorLuckyBlocks;
+import net.minecraft.init.Blocks;
+import net.minecraft.init.Items;
+import net.minecraft.item.ItemStack;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLInterModComms;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
@@ -21,6 +25,7 @@ import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
 import net.minecraftforge.fml.common.event.FMLServerStoppingEvent;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
+import net.minecraftforge.oredict.OreDictionary;
 
 public class CommonProxy {
 
@@ -43,7 +48,14 @@ public class CommonProxy {
         LuckyHelper.registerDefaultDrops(FoolsLib.LUCKY_BOW);
         GameRegistry.addRecipe(new LuckRecipe(FoolsLib.LUCKY_BLOCK));
         LuckyHelper.registerDefaultRecipes(FoolsLib.LUCKY_BLOCK);
-        //TODO bow recipe!
+        GameRegistry.addShapedRecipe(new ItemStack(FoolsBlocks.LUCKY_BLOCK),
+                "III",
+                "IDI",
+                "III",
+                'I', Items.iron_ingot,
+                'D', Blocks.dispenser);
+        GameRegistry.addShapelessRecipe(new ItemStack(FoolsItems.LUCKY_BOW), new ItemStack(Items.bow), new ItemStack(FoolsBlocks.LUCKY_BLOCK, 1, OreDictionary.WILDCARD_VALUE));
+        //TODO bow upgrade recipe!
     }
 
     public void postInit(FMLPostInitializationEvent event) {
