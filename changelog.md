@@ -13,3 +13,4 @@ Version 1.0.0
 - added crafting recipes
 - added lambda mesh definition for item models
 - added coremod
+- fixed update json
