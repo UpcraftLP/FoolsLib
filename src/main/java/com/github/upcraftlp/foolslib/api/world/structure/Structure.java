@@ -22,6 +22,7 @@ public abstract class Structure {
     protected boolean isPlacing;
 
     public Structure(ResourceLocation structure, int offsetX, int offsetY, int offsetZ) {
+        this.integrity = 1.0F;
         this.structure = structure;
         this.offsetX = offsetX;
         this.offsetY = offsetY;
