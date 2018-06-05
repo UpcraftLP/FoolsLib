@@ -46,7 +46,7 @@ public class FoolsLib {
     public static final ResourceLocation LUCKY_BLOCK = new ResourceLocation(MODID, "lucky_block");
     public static final ResourceLocation LUCKY_BOW = new ResourceLocation(MODID, "lucky_bow");
 
-    private static final Logger log = LogManager.getLogger(MODID, new PrefixMessageFactory(MOD_NAME));
+    private static final Logger LOGGER = LogManager.getLogger(MODID, new PrefixMessageFactory(MOD_NAME));
 
     @Mod.Metadata
     public static ModMetadata metadata;
@@ -63,40 +63,40 @@ public class FoolsLib {
         metadata.version = VERSION;
 
         proxy.preInit(event);
-        log.info("Pre-Initialization finished.", new Object[0]);
+        LOGGER.info("Pre-Initialization finished.", new Object[0]);
     }
 
     @Mod.EventHandler
     public void init(FMLInitializationEvent event) {
         proxy.init(event);
-        log.info("Initialization finished.", new Object[0]);
+        LOGGER.info("Initialization finished.", new Object[0]);
     }
 
     @Mod.EventHandler
     public void postInit(FMLPostInitializationEvent event) {
         proxy.postInit(event);
-        log.info("Post-Initialization finished.", new Object[0]);
+        LOGGER.info("Post-Initialization finished.", new Object[0]);
     }
 
     @Mod.EventHandler
     public void serverStarting(FMLServerStartingEvent event) {
         proxy.serverStarting(event);
-        log.info("Server starting.", new Object[0]);
+        LOGGER.info("Server starting.", new Object[0]);
     }
 
     @Mod.EventHandler
     public void serverStopping(FMLServerStoppingEvent event) {
         proxy.serverStopping(event);
-        log.info("Server stopping.", new Object[0]);
+        LOGGER.info("Server stopping.", new Object[0]);
     }
 
     @Mod.EventHandler
     public void onIMCMessage(FMLInterModComms.IMCEvent event) {
         proxy.onIMCMessage(event);
-        log.info("received {} IMC Messages.", event.getMessages().size());
+        LOGGER.info("received {} IMC Messages.", event.getMessages().size());
     }
 
     public static Logger getLogger() {
-        return log;
+        return LOGGER;
     }
 }

@@ -12,3 +12,4 @@ Version 1.0.0
 - added lucky block upgrade crafting
 - added crafting recipes
 - added lambda mesh definition for item models
+- added coremod

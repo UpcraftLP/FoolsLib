@@ -1,15 +1,19 @@
 package com.github.upcraftlp.foolslib.asm;
 
+import com.github.upcraftlp.foolslib.api.util.PrefixMessageFactory;
 import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.Map;
 
 @IFMLLoadingPlugin.MCVersion(Loader.MC_VERSION)
-@IFMLLoadingPlugin.TransformerExclusions({"com.github.upcraftlp.foolslib.asm", "com.github.upcraftlp.foolslib.FoolsLib"})
+@IFMLLoadingPlugin.TransformerExclusions({"com.github.upcraftlp.foolslib.asm"})
 public class FoolsLibLoadingPlugin implements IFMLLoadingPlugin {
 
     private static boolean runtimeDeobfuscation;
+    public static final Logger log = LogManager.getLogger("FoolsLib:Core", new PrefixMessageFactory("FoolsLib:Core"));
 
     public static boolean isNormalEnvironment() {
         return runtimeDeobfuscation;

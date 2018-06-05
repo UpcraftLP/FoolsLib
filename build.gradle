@@ -228,7 +228,7 @@ reobf {
 
 task signCoreJar(type: SignJar) {
     onlyIf {
-        project.hasProperty('sign_keyStore')
+        project.hasProperty('sign_keyStore') && project.hasProperty('core_package')
     }
     if(project.hasProperty('core_package')) dependsOn reobfCoreJar
     keyPass = findProperty('sign_keyPass')
@@ -241,21 +241,23 @@ task signCoreJar(type: SignJar) {
 }
 
 jar {
-    if(project.hasProperty('core_package')) {
+    /*if(project.hasProperty('core_package')) {
         dependsOn signCoreJar
         exclude project.core_package
         from(coreJar.archivePath.absolutePath) {
             include '*'
         }
         manifest.mainAttributes("ContainedDeps": coreJar.archivePath.name)
-    }
+    }*/
 
     manifest.mainAttributes(
             "Implementation-Title": project.name,
             "Implementation-Version": "${project.mod_version}",
             "Built-On": "${project.mc_version}-${project.forge_version}",
             "Maven-Artifact":"${project.group}:${project.archivesBaseName}:${project.version}",
-            "FMLAT": "${project.mod_name}_at.cfg"
+            "FMLAT": "${project.mod_name}_at.cfg",
+            "FMLCorePlugin": project.loading_plugin,
+            "FMLCorePluginContainsFMLMod": "true"
     )
     classifier '' //this is the main jar!
 }

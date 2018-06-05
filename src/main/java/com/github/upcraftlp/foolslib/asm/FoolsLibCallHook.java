@@ -1,6 +1,5 @@
 package com.github.upcraftlp.foolslib.asm;
 
-import com.github.upcraftlp.foolslib.FoolsLib;
 import net.minecraftforge.fml.relauncher.IFMLCallHook;
 
 import java.util.Map;
@@ -11,7 +10,7 @@ public class FoolsLibCallHook implements IFMLCallHook {
 
     @Override
     public Void call() throws Exception {
-        FoolsLib.getLogger().debug("Hello Minecraft! When is LastCube going to come back?");
+        FoolsLibLoadingPlugin.log.info("Hello Minecraft! When is LastCube going to come back?");
         return null;
     }
 }
