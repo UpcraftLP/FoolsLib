@@ -2,7 +2,10 @@ package com.github.upcraftlp.foolslib.client;
 
 import net.minecraft.client.model.ModelBiped;
 import net.minecraft.entity.Entity;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
+@SideOnly(Side.CLIENT)
 public class ModelEmpty extends ModelBiped {
 
     @Override

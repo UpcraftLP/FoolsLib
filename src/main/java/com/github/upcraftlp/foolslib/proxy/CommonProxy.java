@@ -3,7 +3,6 @@ package com.github.upcraftlp.foolslib.proxy;
 import com.github.upcraftlp.foolslib.FoolsLib;
 import com.github.upcraftlp.foolslib.api.block.tile.TileEntityLuckyBlock;
 import com.github.upcraftlp.foolslib.api.luck.LuckyHelper;
-import com.github.upcraftlp.foolslib.api.net.NetworkHandler;
 import com.github.upcraftlp.foolslib.api.recipe.LuckRecipe;
 import com.github.upcraftlp.foolslib.api.util.ModHelper;
 import com.github.upcraftlp.foolslib.api.util.UpdateChecker;
@@ -38,7 +37,6 @@ public class CommonProxy {
         }
         FoolsConfig.init();
         UpdateChecker.registerMod(FoolsLib.MODID);
-        NetworkHandler.init();
         GameRegistry.registerWorldGenerator(new WorldGeneratorLuckyBlocks(FoolsBlocks.LUCKY_BLOCK), 100000); //reminder: higher weight means the generator is run later
     }
 

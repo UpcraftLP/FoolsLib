@@ -10,11 +10,14 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.event.RenderPlayerEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
-@EventBusSubscriber(side = Side.CLIENT, value = FoolsLib.MODID, forge = true)
+@SideOnly(Side.CLIENT)
+@EventBusSubscriber(value = FoolsLib.MODID, forge = true)
 public class SkinArmorRenderer {
 
     private static ResourceLocation armorTexture;
+    public static final ModelEmpty EMPTY_MODEL = new ModelEmpty();
 
     @SubscribeEvent
     public void onRenderArmor(RenderPlayerEvent.Pre event) {

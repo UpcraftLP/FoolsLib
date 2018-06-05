@@ -15,12 +15,14 @@ import net.minecraft.util.Vec3;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL14;
 
 import java.util.List;
 
-@EventBusSubscriber(side = Side.CLIENT, value = FoolsLib.MODID, forge = true)
+@SideOnly(Side.CLIENT)
+@EventBusSubscriber(value = FoolsLib.MODID, forge = true)
 public class StructureRenderer {
 
     @SuppressWarnings("unchecked")

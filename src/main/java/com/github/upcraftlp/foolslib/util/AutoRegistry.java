@@ -44,25 +44,21 @@ public class AutoRegistry {
     public static void registerAll(FMLPreInitializationEvent event) {
         ASMDataTable dataTable = event.getAsmData();
         Set<ASMDataTable.ASMData> classesToLoad = dataTable.getAll(EventBusSubscriber.class.getCanonicalName());
-        Side currentSide = event.getSide();
-        classesToLoad.forEach(asmData -> {
+        data:
+        for(ASMDataTable.ASMData asmData : classesToLoad) {
             try {
                 Class c = Class.forName(asmData.getClassName());
                 Object instance = c.newInstance();
                 EventBusSubscriber annotation = (EventBusSubscriber) c.getAnnotation(EventBusSubscriber.class);
-                for(Side side : annotation.side()) {
-                    if(side == currentSide) {
-                        if(annotation.forge()) MinecraftForge.EVENT_BUS.register(instance);
-                        if(annotation.terrainGen()) MinecraftForge.TERRAIN_GEN_BUS.register(instance);
-                        if(annotation.oreGen()) MinecraftForge.ORE_GEN_BUS.register(instance);
-                        if(annotation.fml()) FMLCommonHandler.instance().bus().register(instance);
-                        if(FoolsConfig.isDebugMode) FoolsLib.getLogger().info("subscribed class {} for mod {};\n\tForgeEventBus={}\n\tFMLCommonHandler={}\n\tTerrainGen={}\n\tOreGen={}\n\tSides:{}", asmData.getClassName(), asmData.getCandidate().getModContainer().getName(), annotation.forge(), annotation.fml(), annotation.terrainGen(), annotation.oreGen(), Arrays.toString(annotation.side()));
-                    }
-                }
+                if(annotation.forge()) MinecraftForge.EVENT_BUS.register(instance);
+                if(annotation.terrainGen()) MinecraftForge.TERRAIN_GEN_BUS.register(instance);
+                if(annotation.oreGen()) MinecraftForge.ORE_GEN_BUS.register(instance);
+                if(annotation.fml()) FMLCommonHandler.instance().bus().register(instance);
+                if(FoolsConfig.isDebugMode) FoolsLib.getLogger().info("subscribed class {} for mod {};\n\tForgeEventBus={}\n\tFMLCommonHandler={}\n\tTerrainGen={}\n\tOreGen={}}", asmData.getClassName(), asmData.getCandidate().getModContainer().getName(), annotation.forge(), annotation.fml(), annotation.terrainGen(), annotation.oreGen());
             } catch (Exception e) {
-                FoolsLib.getLogger().debug("unable to load class {} for Side {}", asmData.getClassName(), currentSide);
+                FoolsLib.getLogger().debug("unable to load class {} for Side {}", asmData.getClassName(), event.getSide());
             }
-        });
+        }
         Set<ASMDataTable.ASMData> data =  dataTable.getAll(RegistryCreate.class.getCanonicalName());
         data.forEach(asmData -> {
             try {
@@ -78,7 +74,7 @@ public class AutoRegistry {
                             Item item = (Item) f.get(null);
 
                             registerItem.invoke(gameData, item, modid + ":" + f.getName().toLowerCase(Locale.ROOT), -1);
-                            if(currentSide == Side.CLIENT) item.getSubItems(item, item.getCreativeTab(), items);
+                            if(event.getSide() == Side.CLIENT) item.getSubItems(item, item.getCreativeTab(), items);
                         }
                         else if(type == Block.class) {
                             Block block = (Block) f.get(null);
@@ -104,7 +100,7 @@ public class AutoRegistry {
                                 registerItem.invoke(gameData, i, name, -1);
                                 GameData.getBlockItemMap().put(block, i);
                             }
-                            if(currentSide == Side.CLIENT) block.getSubBlocks(Item.getItemFromBlock(block), block.getCreativeTabToDisplayOn(), items);
+                            if(event.getSide() == Side.CLIENT) block.getSubBlocks(Item.getItemFromBlock(block), block.getCreativeTabToDisplayOn(), items);
                         }
                         for (ItemStack stack : items) {
                             Item item = stack.getItem();

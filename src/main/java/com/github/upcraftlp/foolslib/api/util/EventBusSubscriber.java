@@ -1,7 +1,6 @@
 package com.github.upcraftlp.foolslib.api.util;
 
 import net.minecraftforge.fml.common.FMLCommonHandler;
-import net.minecraftforge.fml.relauncher.Side;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -36,6 +35,4 @@ public @interface EventBusSubscriber {
      * @return whether this class should be subscribed to the {@link net.minecraftforge.common.MinecraftForge#ORE_GEN_BUS} Event Bus
      */
     boolean oreGen() default false;
-
-    Side[] side() default {Side.CLIENT, Side.SERVER};
 }
