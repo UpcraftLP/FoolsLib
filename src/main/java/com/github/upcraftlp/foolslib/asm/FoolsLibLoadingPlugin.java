@@ -8,6 +8,7 @@ import org.apache.logging.log4j.Logger;
 
 import java.util.Map;
 
+@IFMLLoadingPlugin.SortingIndex(9001)
 @IFMLLoadingPlugin.MCVersion(Loader.MC_VERSION)
 @IFMLLoadingPlugin.TransformerExclusions({"com.github.upcraftlp.foolslib.asm"})
 public class FoolsLibLoadingPlugin implements IFMLLoadingPlugin {

@@ -23,13 +23,13 @@ public class TransformPlayerRender implements IClassTransformer {
             ClassReader cr = new ClassReader(basicClass);
             cr.accept(cn, 0);
             Iterator<MethodNode> methods = cn.methods.iterator();
-            FoolsLibLoadingPlugin.log.info("transforming class {}", transformedName);
+            FoolsLibLoadingPlugin.log.info("transforming class {} ({})", name, transformedName);
             {
-                String methodName = FoolsLibLoadingPlugin.isNormalEnvironment() ? "func_110775_a" : "getEntityTexture";
+                String methodName = FoolsLibLoadingPlugin.isNormalEnvironment() ? "func_180594_a" : "getEntityTexture";
                 while(methods.hasNext()) {
                     MethodNode method = methods.next();
                     if(methodName.equals(method.name) && "(Lnet/minecraft/client/entity/AbstractClientPlayer;)Lnet/minecraft/util/ResourceLocation;".equals(method.desc)) {
-                        FoolsLibLoadingPlugin.log.info("transforming method {}", methodName);
+                        FoolsLibLoadingPlugin.log.info("transforming method {} ({})", methodName, "getEntityTexture");
                         for(int i = 0; i < method.instructions.size(); i++) {
                             AbstractInsnNode current = method.instructions.get(i);
                             if(current instanceof MethodInsnNode) {
